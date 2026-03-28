@@ -3,10 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Al Manami — المنامي</title>
+<title>Al Manami — Interprétation islamique des rêves | تفسير الأحلام</title>
+<meta name="description" content="Al Manami : interprétation de vos rêves selon la tradition islamique d'Ibn Sirin, Al-Nabulsi et Ibn Shahin. Guidance spirituelle personnalisée en français et en arabe.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://almanami.com/">
+<meta name="theme-color" content="#000000">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://almanami.com/">
+<meta property="og:title" content="Al Manami — Interprétation islamique des rêves">
+<meta property="og:description" content="Confie ton rêve à Ahlam. Interprétation selon Ibn Sirin, Al-Nabulsi et Ibn Shahin — la tradition savante islamique.">
+<meta property="og:image" content="https://almanami.com/og-image.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:locale:alternate" content="ar_SA">
+<meta property="og:site_name" content="Al Manami">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Al Manami — Interprétation islamique des rêves">
+<meta name="twitter:description" content="Confie ton rêve à Ahlam. Interprétation selon la tradition savante islamique.">
+<meta name="twitter:image" content="https://almanami.com/og-image.jpg">
+
+<!-- Hreflang -->
+<link rel="alternate" hreflang="fr" href="https://almanami.com/">
+<link rel="alternate" hreflang="ar" href="https://almanami.com/">
+<link rel="alternate" hreflang="x-default" href="https://almanami.com/">
+
+<!-- Favicon & PWA -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://almanami.com/#organization",
+      "name": "Al Manami",
+      "alternateName": "المنامي",
+      "url": "https://almanami.com",
+      "description": "Plateforme d'interprétation des rêves selon la tradition islamique classique — Ibn Sirin, Al-Nabulsi, Ibn Shahin."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://almanami.com/#website",
+      "name": "Al Manami",
+      "url": "https://almanami.com",
+      "publisher": { "@id": "https://almanami.com/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://almanami.com/chat?dream={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Comment interpréter un rêve en islam ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "L'interprétation des rêves en islam repose sur les ouvrages classiques d'Ibn Sirin, Al-Nabulsi et Ibn Shahin. Les rêves se classent en trois catégories : la ru'ya (vision véridique venant d'Allah), le hulm (rêve troublant venant de Shaytan) et le hadith al-nafs (murmure de l'âme). Al Manami vous accompagne dans cette tradition savante."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qui sont Ibn Sirin et Al-Nabulsi ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ibn Sirin (VIIIe siècle) et Al-Nabulsi (XVIIe siècle) sont les deux plus grands savants de l'interprétation des rêves dans la tradition islamique. Leurs ouvrages restent les références fondamentales du tafsir al-ahlam."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Que signifie rêver d'un serpent en islam ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Selon Ibn Sirin, le serpent dans un rêve désigne généralement un ennemi. La signification varie selon la taille, la couleur et le comportement du serpent. Al-Nabulsi ajoute que le serpent noir peut symboliser un ennemi puissant ou caché."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quelle est la différence entre ru'ya et hulm ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La ru'ya (رؤيا) est une vision véridique venant d'Allah, considérée comme une des quarante-six parties de la prophétie. Le hulm (حلم) est un rêve troublant venant de Shaytan, contre lequel les savants recommandent de chercher refuge auprès d'Allah."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -290,6 +392,11 @@
     color: rgba(255, 255, 255, 0.28);
   }
 
+  /* ── hide video on mobile to save bandwidth ── */
+  @media (max-width: 768px) {
+    .bg-video { display: none; }
+  }
+
   /* ═══════════════════════════════════
      MOBILE
      ═══════════════════════════════════ */
@@ -346,7 +453,7 @@
 </head>
 <body>
 
-<video class="bg-video" autoplay muted loop playsinline>
+<video class="bg-video" autoplay muted loop playsinline preload="none" poster="poster.jpg">
   <source src="background.mp4" type="video/mp4">
 </video>
 
@@ -354,17 +461,17 @@
 <div class="vignette"></div>
 <div class="grain"></div>
 
-<div class="page">
+<main class="page">
 
   <!-- ── TITLE ── -->
-  <div class="title-block">
-    <div class="hadith">
+  <header class="title-block">
+    <blockquote class="hadith" cite="Sahih al-Bukhari, 6472">
       « Le rêve véridique du croyant pieux est une des quarante-six parties de la prophétie. » — <em>Sahih</em>
-    </div>
-    <div class="hadith-divider"></div>
-    <div class="title-main">AL MANAMI</div>
-    <div class="title-arabic">المنامي</div>
-  </div>
+    </blockquote>
+    <div class="hadith-divider" role="separator"></div>
+    <h1 class="title-main">AL MANAMI</h1>
+    <p class="title-arabic" lang="ar">المنامي</p>
+  </header>
 
   <!-- ── INPUT ── -->
   <div class="input-section">
@@ -395,7 +502,7 @@
     <div class="enter-hint" id="enterHint">Appuyez sur Entrée</div>
   </div>
 
-</div>
+</main>
 
 <script>
 (function () {

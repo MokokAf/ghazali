@@ -1,4 +1,25 @@
+import { SYSTEM_PROMPT } from './_system-prompt.js';
+
+const ALLOWED_ORIGINS = [
+  'https://almanami.com',
+  'https://www.almanami.com',
+  'http://localhost:8080',
+  'http://localhost:3000',
+];
+
 export default async function handler(req, res) {
+  // CORS
+  const origin = req.headers.origin || '';
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -9,7 +30,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { system, messages } = req.body;
+    const { messages } = req.body;
+
+    // Input validation
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'messages array is required' });
+    }
+    if (messages.length > 100) {
+      return res.status(400).json({ error: 'Too many messages' });
+    }
+    for (const msg of messages) {
+      if (!msg.role || !msg.content) {
+        return res.status(400).json({ error: 'Each message must have role and content' });
+      }
+      if (typeof msg.content === 'string' && msg.content.length > 10000) {
+        return res.status(400).json({ error: 'Message content too long' });
+      }
+    }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -22,7 +59,7 @@ export default async function handler(req, res) {
         model: 'claude-sonnet-4-6',
         max_tokens: 16000,
         stream: true,
-        system: system,
+        system: SYSTEM_PROMPT,
         messages: messages,
       }),
     });
