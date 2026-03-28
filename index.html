@@ -580,7 +580,7 @@
     items.forEach(el => el.classList.remove('visible'));
     items[idx].classList.add('visible');
     idx = (idx + 1) % items.length;
-    timer = setTimeout(showNext, 3500);
+    timer = setTimeout(showNext, 1500);
   }
 
   function pauseExamples() {
