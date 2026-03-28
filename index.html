@@ -406,52 +406,102 @@
      MOBILE
      ═══════════════════════════════════ */
   @media (max-width: 480px) {
+    .page {
+      padding: 0 24px;
+      padding-top: 8vh;
+      justify-content: center;
+    }
+
+    /* ── Quote: entry point for the eye, generous & readable ── */
     .title-block {
-      margin-bottom: 6vh;
+      margin-bottom: 4vh;
     }
     .hadith {
-      font-size: 15px;
+      font-size: 19px;
+      line-height: 1.85;
+      max-width: 100%;
+      letter-spacing: 0.01em;
     }
     .hadith-divider {
-      width: 24%;
-      margin: 20px auto 14px;
+      width: 18%;
+      margin: 18px auto 14px;
     }
+
+    /* ── Title: quiet brand mark, not competing with CTA ── */
     .title-main {
       font-size: 22px;
+      letter-spacing: 0.22em;
+      color: rgba(255, 252, 248, 0.45);
     }
     .title-arabic {
       font-size: 15px;
       margin-top: 2px;
+      color: rgba(255, 252, 248, 0.32);
     }
+
+    /* ── CTA area: the star of the show ── */
     .input-section {
       max-width: 100%;
     }
-    .dream-input {
-      font-size: 18px;
-      padding: 18px 20px;
-      height: 58px;
-      min-height: 58px;
-    }
-    .dream-input::placeholder {
-      font-size: 18px;
-    }
-    .submit-btn {
-      padding: 18px 16px;
+    .dream-examples {
+      height: 36px;
+      margin-bottom: 16px;
     }
     .dream-example {
-      font-size: 17px;
+      font-size: 19px;
+      color: rgba(230, 220, 240, 0.88);
+    }
+    .input-bar {
+      border-radius: 8px;
+      border-color: rgba(255, 255, 255, 0.42);
+      background: rgba(0, 0, 0, 0.20);
+    }
+    .dream-input {
+      font-size: 21px;
+      padding: 22px 22px;
+      height: 68px;
+      min-height: 68px;
+    }
+    .dream-input::placeholder {
+      font-size: 21px;
+    }
+    .submit-btn {
+      padding: 22px 20px;
+    }
+    .submit-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    .enter-hint {
+      display: none;
     }
   }
 
   @media (max-width: 360px) {
+    .page {
+      padding: 0 18px;
+      padding-top: 6vh;
+    }
+    .hadith {
+      font-size: 17px;
+    }
     .title-main {
       font-size: 20px;
     }
     .title-arabic {
-      font-size: 14px;
+      font-size: 13px;
     }
-    .hadith {
-      font-size: 13.5px;
+    .dream-example {
+      font-size: 17px;
+    }
+    .dream-input {
+      font-size: 19px;
+      padding: 20px 18px;
+      height: 64px;
+      min-height: 64px;
+    }
+    .dream-input::placeholder {
+      font-size: 19px;
     }
   }
 </style>
