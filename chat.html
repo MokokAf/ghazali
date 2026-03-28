@@ -307,8 +307,6 @@
 </head>
 <body>
 
-<script src="config.js"></script>
-
 <video class="bg-video" autoplay muted loop playsinline>
   <source src="background.mp4" type="video/mp4">
 </video>
@@ -352,9 +350,7 @@
 (function () {
 
   // ── Config ──
-  const ANTHROPIC_API_KEY = (window.ALMANAMI_CONFIG && window.ALMANAMI_CONFIG.ANTHROPIC_API_KEY) || '';
-  const ANTHROPIC_MODEL = 'claude-sonnet-4-6';
-  const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+  const API_URL = '/api/chat';
   const MIN_LOADING_MS = 9000;
 
   const SYSTEM_PROMPT = `# AHLAM — System Prompt v1.0
@@ -736,23 +732,13 @@ Oriente vers les pratiques prophétiques : chercher refuge auprès d'Allah, chan
   async function callAnthropic(userText) {
     conversationHistory.push({ role: 'user', content: userText });
 
-    const body = {
-      model: ANTHROPIC_MODEL,
-      max_tokens: 16000,
-      stream: true,
-      system: SYSTEM_PROMPT,
-      messages: conversationHistory
-    };
-
-    const response = await fetch(ANTHROPIC_URL, {
+    const response = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify(body)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
     });
 
     if (!response.ok) {
