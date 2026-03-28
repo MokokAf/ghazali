@@ -484,10 +484,19 @@
     return d.innerHTML;
   }
 
+  function isNearBottom() {
+    var threshold = 80;
+    return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < threshold;
+  }
+
   function scrollToBottom() {
     requestAnimationFrame(function() {
       messagesEl.scrollTop = messagesEl.scrollHeight;
     });
+  }
+
+  function scrollIfNearBottom() {
+    if (isNearBottom()) scrollToBottom();
   }
 
   // ── Loading animation ──
@@ -594,7 +603,7 @@
         for (let j = wi; j < end; j++) shown += words[j];
         wi = end;
         el.innerHTML = textToParagraphs(shown);
-        scrollToBottom();
+        scrollIfNearBottom();
         setTimeout(tick, speed);
       } else {
         if (onDone) onDone();
