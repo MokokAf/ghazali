@@ -109,9 +109,16 @@
   .chat-header {
     flex-shrink: 0;
     text-align: center;
-    padding: 16px 20px 12px;
+    padding: 14px 20px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-header-center {
+    text-align: center;
   }
 
   .chat-header .title-main {
@@ -122,7 +129,10 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    text-decoration: none;
+    display: block;
   }
+  .chat-header .title-main:hover { color: rgba(255, 252, 248, 0.95); }
 
   .chat-header .title-arabic {
     font-family: 'Aref Ruqaa', serif;
@@ -134,23 +144,49 @@
     text-shadow: 0 1px 8px rgba(0,0,0,0.4);
   }
 
-  /* ── journal button (top-right) ── */
-  .journal-btn {
+  /* ── header left controls ── */
+  .header-left {
     position: absolute;
+    left: 16px;
     top: 50%;
-    right: 16px;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── header right controls ── */
+  .header-right {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── shared header icon button ── */
+  .header-icon-btn {
     background: none;
     border: none;
     cursor: pointer;
     padding: 6px;
-    opacity: 0.6;
+    opacity: 0.5;
     transition: opacity 0.3s;
-    display: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .journal-btn:hover { opacity: 0.9; }
-  .journal-btn.visible { display: block; }
-  .journal-btn svg { width: 22px; height: 22px; }
+  .header-icon-btn:hover { opacity: 0.85; }
+  .header-icon-btn svg { width: 20px; height: 20px; }
+
+  /* ── new dream button ── */
+  .new-dream-btn svg { width: 19px; height: 19px; }
+
+  /* ── journal button ── */
+  .journal-btn { display: none; }
+  .journal-btn.visible { display: flex; }
 
   /* ── messages area ── */
   .messages {
@@ -611,9 +647,14 @@
 
   /* ── mobile ── */
   @media (max-width: 480px) {
-    .chat-header { padding: 12px 16px 10px; }
-    .chat-header .title-main { font-size: 15px; }
-    .chat-header .title-arabic { font-size: 12px; }
+    .chat-header { padding: 10px 12px 8px; }
+    .chat-header .title-main { font-size: 14px; }
+    .chat-header .title-arabic { font-size: 11px; }
+    .header-left { left: 10px; }
+    .header-right { right: 10px; gap: 4px; }
+    .header-icon-btn { padding: 5px; }
+    .header-icon-btn svg { width: 18px; height: 18px; }
+    .new-dream-btn svg { width: 17px; height: 17px; }
     .messages { padding: 18px 14px 12px; gap: 20px; }
     .message { max-width: 90%; }
     .message.user { font-size: 16px; padding: 12px 16px; }
@@ -622,8 +663,6 @@
     .chat-input::placeholder { font-size: 16px; }
     .send-btn { padding: 12px 12px; }
     .loading-text { font-size: 14px; }
-    .journal-btn { right: 10px; }
-    .journal-btn svg { width: 20px; height: 20px; }
     .modal { padding: 28px 24px 24px; }
     .modal-title { font-size: 18px; }
   }
@@ -644,13 +683,31 @@
 
   <!-- header -->
   <header class="chat-header">
-    <h1 class="title-main">AL MANAMI</h1>
-    <p class="title-arabic" lang="ar">المنامي</p>
-    <button class="journal-btn" id="journalBtn" title="Journal de rêves" aria-label="Journal de rêves">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+    <div class="header-left">
+      <a href="/" class="header-icon-btn back-btn" title="Accueil" aria-label="Retour à l'accueil">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="chat-header-center">
+      <a href="/" class="title-main">AL MANAMI</a>
+      <p class="title-arabic" lang="ar">المنامي</p>
+    </div>
+
+    <div class="header-right">
+      <button class="header-icon-btn new-dream-btn" id="newDreamBtn" title="Nouveau rêve" aria-label="Nouveau rêve">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="header-icon-btn journal-btn" id="journalBtn" title="Journal de rêves" aria-label="Journal de rêves">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
   </header>
 
   <!-- messages -->
@@ -1313,6 +1370,20 @@
     journalOverlay.classList.toggle('active', journalOpen);
     if (journalOpen) loadConversations();
   }
+
+  // ── New dream button ──
+  document.getElementById('newDreamBtn').addEventListener('click', function() {
+    if (isStreaming) return;
+    messagesEl.innerHTML = '';
+    conversationHistory = [];
+    conversationId = null;
+    detectedLang = 'fr';
+    page.classList.remove('rtl');
+    chatInput.removeAttribute('dir');
+    chatInput.style.textAlign = '';
+    chatInput.placeholder = 'Racontez votre rêve…';
+    chatInput.focus();
+  });
 
   journalBtn.addEventListener('click', toggleJournal);
   journalClose.addEventListener('click', toggleJournal);
