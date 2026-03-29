@@ -420,6 +420,22 @@
     text-align: center;
     z-index: 10;
   }
+  .auth-link-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    position: relative;
+  }
+  .auth-link-inner svg {
+    width: 15px;
+    height: 15px;
+    opacity: 0.30;
+    transition: opacity 0.4s;
+    display: none;
+  }
+  .auth-link.signed-in .auth-link-inner svg { display: block; }
+  .auth-link-inner:hover svg { opacity: 0.55; }
   .auth-link a {
     font-family: 'Cormorant Garamond', serif;
     font-size: 15px;
@@ -434,8 +450,51 @@
     color: rgba(255, 255, 255, 0.55);
   }
   .auth-link.signed-in a {
-    color: rgba(255, 255, 255, 0.22);
-    cursor: default;
+    color: rgba(255, 255, 255, 0.30);
+  }
+  .auth-link.signed-in .auth-link-inner:hover a {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  /* ── logout dropdown ── */
+  .auth-dropdown {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 10px;
+    background: rgba(28, 24, 22, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    padding: 8px 0;
+    min-width: 140px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: dropUp 0.2s ease;
+  }
+  .auth-dropdown.visible { display: block; }
+  @keyframes dropUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  .auth-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 18px;
+    background: none;
+    border: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.70);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+  }
+  .auth-dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.90);
   }
 
   /* ═══════════════════════════════════
@@ -601,7 +660,16 @@
 </main>
 
 <div class="auth-link" id="authLink">
-  <a id="authAction">Se connecter</a>
+  <div class="auth-link-inner" id="authInner">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12" cy="7" r="4" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <a id="authAction">Se connecter</a>
+    <div class="auth-dropdown" id="authDropdown">
+      <button class="auth-dropdown-item" id="logoutBtn">Se déconnecter</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -610,7 +678,10 @@
   // ── Auth ──
   const authLink = document.getElementById('authLink');
   const authAction = document.getElementById('authAction');
+  const authDropdown = document.getElementById('authDropdown');
+  const logoutBtn = document.getElementById('logoutBtn');
   let sb = null;
+  let isSignedIn = false;
 
   async function initAuth() {
     try {
@@ -628,25 +699,56 @@
       }
 
       sb.auth.onAuthStateChange(function(event, session) {
-        if (session) showSignedIn(session.user);
+        if (session) {
+          showSignedIn(session.user);
+        } else {
+          showSignedOut();
+        }
       });
     } catch (e) {}
   }
 
   function showSignedIn(user) {
-    var name = (user.user_metadata && user.user_metadata.name) || user.email;
+    var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || user.email;
     authAction.textContent = name;
     authLink.classList.add('signed-in');
     authAction.removeEventListener('click', doGoogleLogin);
+    isSignedIn = true;
+
+    // Click on name toggles dropdown
+    authAction.addEventListener('click', function(e) {
+      e.stopPropagation();
+      authDropdown.classList.toggle('visible');
+    });
+  }
+
+  function showSignedOut() {
+    authAction.textContent = 'Se connecter';
+    authLink.classList.remove('signed-in');
+    authDropdown.classList.remove('visible');
+    isSignedIn = false;
+    authAction.addEventListener('click', doGoogleLogin);
   }
 
   function doGoogleLogin() {
-    if (!sb) return;
+    if (!sb || isSignedIn) return;
     sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/' },
     });
   }
+
+  // Logout
+  logoutBtn.addEventListener('click', async function() {
+    if (!sb) return;
+    await sb.auth.signOut();
+    authDropdown.classList.remove('visible');
+  });
+
+  // Close dropdown on click outside
+  document.addEventListener('click', function() {
+    authDropdown.classList.remove('visible');
+  });
 
   initAuth();
 
