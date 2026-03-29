@@ -411,6 +411,33 @@
     color: rgba(255, 255, 255, 0.28);
   }
 
+  /* ── auth link ── */
+  .auth-link {
+    position: fixed;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 10;
+  }
+  .auth-link a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.30);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: color 0.4s ease;
+  }
+  .auth-link a:hover {
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .auth-link.signed-in a {
+    color: rgba(255, 255, 255, 0.22);
+    cursor: default;
+  }
+
   /* ═══════════════════════════════════
      MOBILE
      ═══════════════════════════════════ */
@@ -483,6 +510,9 @@
     }
     .enter-hint {
       display: none;
+    }
+    .auth-link {
+      font-size: 14px;
     }
   }
 
@@ -570,8 +600,57 @@
 
 </main>
 
+<div class="auth-link" id="authLink">
+  <a id="authAction">Se connecter</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (function () {
+  // ── Auth ──
+  const authLink = document.getElementById('authLink');
+  const authAction = document.getElementById('authAction');
+  let sb = null;
+
+  async function initAuth() {
+    try {
+      var res = await fetch('/api/config');
+      if (!res.ok) return;
+      var config = await res.json();
+      if (!config.supabaseUrl || !config.supabaseAnonKey) return;
+      sb = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+
+      var { data } = await sb.auth.getSession();
+      if (data.session) {
+        showSignedIn(data.session.user);
+      } else {
+        authAction.addEventListener('click', doGoogleLogin);
+      }
+
+      sb.auth.onAuthStateChange(function(event, session) {
+        if (session) showSignedIn(session.user);
+      });
+    } catch (e) {}
+  }
+
+  function showSignedIn(user) {
+    var name = (user.user_metadata && user.user_metadata.name) || user.email;
+    authAction.textContent = name;
+    authLink.classList.add('signed-in');
+    authAction.removeEventListener('click', doGoogleLogin);
+  }
+
+  function doGoogleLogin() {
+    if (!sb) return;
+    sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/' },
+    });
+  }
+
+  initAuth();
+
+  // ── Dream input ──
   const input = document.getElementById('dreamInput');
   const bar = document.getElementById('inputBar');
   const overlay = document.getElementById('overlay');
