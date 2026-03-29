@@ -45,7 +45,11 @@ export default async function handler(req, res) {
       if (userId) anonId = null;
 
       // Rate limiting: 3 assistant replies per user per hour
-      const userFilter = userId
+      // Skip for whitelisted users (comma-separated emails in env var)
+      const whitelist = (process.env.RATE_LIMIT_WHITELIST || '').split(',').map(e => e.trim()).filter(Boolean);
+      const isWhitelisted = identity.user && whitelist.includes(identity.user.email);
+
+      const userFilter = isWhitelisted ? null : userId
         ? `conversations.user_id=eq.${userId}`
         : anonId
           ? `conversations.anon_id=eq.${anonId}`
