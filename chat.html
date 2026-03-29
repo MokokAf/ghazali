@@ -7,7 +7,6 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-WMLF1RBGNW');
 </script>
 <meta charset="UTF-8">
@@ -40,6 +39,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -108,6 +111,7 @@
     text-align: center;
     padding: 16px 20px 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
   }
 
   .chat-header .title-main {
@@ -129,6 +133,24 @@
     margin-top: 1px;
     text-shadow: 0 1px 8px rgba(0,0,0,0.4);
   }
+
+  /* ── journal button (top-right) ── */
+  .journal-btn {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    display: none;
+  }
+  .journal-btn:hover { opacity: 0.9; }
+  .journal-btn.visible { display: block; }
+  .journal-btn svg { width: 22px; height: 22px; }
 
   /* ── messages area ── */
   .messages {
@@ -181,13 +203,8 @@
     text-shadow: 0 1px 6px rgba(0,0,0,0.4);
   }
 
-  .message.ahlam p {
-    margin-bottom: 14px;
-  }
-
-  .message.ahlam p:last-child {
-    margin-bottom: 0;
-  }
+  .message.ahlam p { margin-bottom: 14px; }
+  .message.ahlam p:last-child { margin-bottom: 0; }
 
   /* ── RTL support ── */
   .rtl .messages { direction: rtl; }
@@ -214,11 +231,8 @@
     text-shadow: 0 1px 8px rgba(0,0,0,0.5);
   }
 
-  .loading-text.hidden {
-    opacity: 0;
-  }
+  .loading-text.hidden { opacity: 0; }
 
-  /* ── subtle dot pulse next to loading text ── */
   .loading-dot {
     display: inline-block;
     width: 4px;
@@ -230,10 +244,7 @@
     animation: dotPulse 1.6s ease-in-out infinite;
   }
 
-  .rtl .loading-dot {
-    margin-left: 0;
-    margin-right: 8px;
-  }
+  .rtl .loading-dot { margin-left: 0; margin-right: 8px; }
 
   @keyframes dotPulse {
     0%, 100% { opacity: 0.3; }
@@ -321,16 +332,282 @@
   .send-btn:hover { opacity: 0.85; }
   .input-bar:focus-within .send-btn { opacity: 0.7; }
   .input-bar:focus-within .send-btn:hover { opacity: 0.9; }
+  .send-btn svg { width: 16px; height: 16px; }
+  .send-btn:disabled { opacity: 0.2; cursor: default; }
 
-  .send-btn svg {
-    width: 16px;
-    height: 16px;
+  /* ═══════════════════════════════════
+     SIGNUP MODAL
+     ═══════════════════════════════════ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.70);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: rgba(28, 24, 22, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 36px 32px 32px;
+    width: 90%;
+    max-width: 380px;
+    position: relative;
+    animation: modalFadeIn 0.4s ease;
   }
 
-  .send-btn:disabled {
-    opacity: 0.2;
-    cursor: default;
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
+
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+  }
+  .modal-close:hover { color: rgba(255, 255, 255, 0.8); }
+
+  .modal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255, 252, 248, 0.90);
+    text-align: center;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .modal-form { display: flex; flex-direction: column; gap: 12px; }
+
+  .modal-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 300;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .modal-input:focus { border-color: rgba(255, 255, 255, 0.35); }
+  .modal-input::placeholder { color: rgba(255, 255, 255, 0.40); }
+
+  .modal-submit {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: rgba(255, 252, 248, 0.90);
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s;
+    margin-top: 4px;
+  }
+  .modal-submit:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.35); }
+
+  .modal-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+  }
+  .modal-divider::before,
+  .modal-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .google-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 400;
+    color: rgba(255, 252, 248, 0.85);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background 0.3s;
+  }
+  .google-btn:hover { background: rgba(255, 255, 255, 0.12); }
+  .google-btn svg { width: 18px; height: 18px; }
+
+  .modal-error {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: rgba(255, 130, 130, 0.9);
+    text-align: center;
+    min-height: 18px;
+  }
+
+  /* ── login toggle ── */
+  .modal-toggle {
+    text-align: center;
+    margin-top: 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+  }
+  .modal-toggle a {
+    color: rgba(255, 255, 255, 0.70);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .modal-toggle a:hover { color: rgba(255, 255, 255, 0.90); }
+
+  /* ═══════════════════════════════════
+     DREAM JOURNAL PANEL
+     ═══════════════════════════════════ */
+  .journal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0, 0, 0, 0.50);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .journal-overlay.active { display: block; }
+
+  .journal-panel {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    bottom: 0;
+    width: 320px;
+    max-width: 85vw;
+    z-index: 91;
+    background: rgba(22, 18, 16, 0.97);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    transition: right 0.3s ease;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .journal-panel.open { right: 0; }
+
+  .journal-header {
+    flex-shrink: 0;
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .journal-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255, 252, 248, 0.85);
+    letter-spacing: 0.04em;
+  }
+
+  .journal-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .journal-close:hover { color: rgba(255, 255, 255, 0.8); }
+
+  .journal-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .journal-list::-webkit-scrollbar { width: 2px; }
+  .journal-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+  .journal-empty {
+    padding: 40px 20px;
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .journal-item {
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .journal-item:hover { background: rgba(255, 255, 255, 0.04); }
+
+  .journal-item-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(255, 252, 248, 0.80);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 28px;
+  }
+
+  .journal-item-date {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.35);
+    margin-top: 3px;
+  }
+
+  .journal-item-delete {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 4px;
+    color: rgba(255, 130, 130, 0.7);
+    font-size: 16px;
+  }
+  .journal-item:hover .journal-item-delete { opacity: 1; }
+  .journal-item-delete:hover { color: rgba(255, 130, 130, 1); }
 
   /* ── mobile ── */
   @media (max-width: 480px) {
@@ -345,6 +622,10 @@
     .chat-input::placeholder { font-size: 16px; }
     .send-btn { padding: 12px 12px; }
     .loading-text { font-size: 14px; }
+    .journal-btn { right: 10px; }
+    .journal-btn svg { width: 20px; height: 20px; }
+    .modal { padding: 28px 24px 24px; }
+    .modal-title { font-size: 18px; }
   }
 </style>
 </head>
@@ -365,6 +646,11 @@
   <header class="chat-header">
     <h1 class="title-main">AL MANAMI</h1>
     <p class="title-arabic" lang="ar">المنامي</p>
+    <button class="journal-btn" id="journalBtn" title="Journal de rêves" aria-label="Journal de rêves">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </header>
 
   <!-- messages -->
@@ -391,15 +677,65 @@
 
 </main>
 
+<!-- ═══════════════════════════════════
+     SIGNUP MODAL
+     ═══════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="signupModal">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-title" id="modalTitle">Pendant que Ahlam interprète votre rêve, connectez-vous pour sauvegarder vos rêves &#x1F4AD;</div>
+
+    <div class="modal-form" id="signupForm">
+      <input class="modal-input" id="authName" type="text" placeholder="Prénom" autocomplete="given-name">
+      <input class="modal-input" id="authEmail" type="email" placeholder="Email" autocomplete="email">
+      <input class="modal-input" id="authPassword" type="password" placeholder="Mot de passe" autocomplete="new-password">
+      <div class="modal-error" id="authError"></div>
+      <button class="modal-submit" id="authSubmit">Créer un compte</button>
+      <div class="modal-divider">ou</div>
+      <button class="google-btn" id="googleBtn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuer avec Google
+      </button>
+    </div>
+
+    <div class="modal-form" id="loginForm" style="display:none;">
+      <input class="modal-input" id="loginEmail" type="email" placeholder="Email" autocomplete="email">
+      <input class="modal-input" id="loginPassword" type="password" placeholder="Mot de passe" autocomplete="current-password">
+      <div class="modal-error" id="loginError"></div>
+      <button class="modal-submit" id="loginSubmit">Se connecter</button>
+      <div class="modal-divider">ou</div>
+      <button class="google-btn" id="googleBtn2">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuer avec Google
+      </button>
+    </div>
+
+    <div class="modal-toggle" id="modalToggle">
+      Déjà un compte ? <a id="toggleToLogin">Se connecter</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     DREAM JOURNAL PANEL
+     ═══════════════════════════════════ -->
+<div class="journal-overlay" id="journalOverlay"></div>
+<div class="journal-panel" id="journalPanel">
+  <div class="journal-header">
+    <span class="journal-title">Journal de rêves</span>
+    <button class="journal-close" id="journalClose">&times;</button>
+  </div>
+  <div class="journal-list" id="journalList">
+    <div class="journal-empty">Vos rêves interprétés apparaîtront ici</div>
+  </div>
+</div>
+
 <script>
 (function () {
 
   // ── Config ──
   const API_URL = '/api/chat';
   const MIN_LOADING_MS = 9000;
-
-  // System prompt is now server-side only (api/_system-prompt.js)
-
 
   // ── Loading step texts by language ──
   const LOADING_STEPS = {
@@ -433,19 +769,118 @@
   let conversationHistory = [];
   let isStreaming = false;
   let detectedLang = 'fr';
+  let conversationId = null;
+  let supabase = null;
+  let currentUser = null;
+  let replyCount = 0;
+  let dismissCount = parseInt(localStorage.getItem('almanami_dismiss_count') || '0');
+
+  // ── Anonymous ID ──
+  function getAnonId() {
+    var id = localStorage.getItem('almanami_anon_id');
+    if (!id) {
+      id = crypto.randomUUID ? crypto.randomUUID() : 'anon-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      localStorage.setItem('almanami_anon_id', id);
+    }
+    return id;
+  }
+  var anonId = getAnonId();
+
+  // ── Supabase Init ──
+  async function initSupabase() {
+    try {
+      var res = await fetch('/api/config');
+      if (!res.ok) return;
+      var config = await res.json();
+      if (!config.supabaseUrl || !config.supabaseAnonKey) return;
+      supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+
+      // Check existing session
+      var { data } = await supabase.auth.getSession();
+      if (data.session) {
+        onAuthChange(data.session.user);
+      }
+
+      // Listen for auth changes (Google OAuth redirect, etc.)
+      supabase.auth.onAuthStateChange(function(event, session) {
+        if (session) {
+          onAuthChange(session.user);
+        } else {
+          currentUser = null;
+          updateUIForAuth();
+        }
+      });
+    } catch (e) {
+      console.log('Supabase not available, continuing without auth');
+    }
+  }
+
+  function onAuthChange(user) {
+    currentUser = user;
+    updateUIForAuth();
+    migrateAnonData();
+  }
+
+  function updateUIForAuth() {
+    var journalBtn = document.getElementById('journalBtn');
+    if (currentUser) {
+      journalBtn.classList.add('visible');
+      hideModal();
+    } else {
+      journalBtn.classList.remove('visible');
+    }
+  }
+
+  async function migrateAnonData() {
+    if (!currentUser) return;
+    var storedAnonId = localStorage.getItem('almanami_anon_id');
+    if (!storedAnonId) return;
+
+    try {
+      var session = (await supabase.auth.getSession()).data.session;
+      if (!session) return;
+
+      await fetch('/api/migrate-anon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token,
+        },
+        body: JSON.stringify({ anon_id: storedAnonId }),
+      });
+    } catch (e) {
+      console.error('Migration failed:', e);
+    }
+  }
+
+  // ── Auth headers for API calls ──
+  async function getAuthHeaders() {
+    var headers = { 'Content-Type': 'application/json' };
+    if (supabase && currentUser) {
+      try {
+        var { data } = await supabase.auth.getSession();
+        if (data.session) {
+          headers['Authorization'] = 'Bearer ' + data.session.access_token;
+        }
+      } catch (e) {}
+    }
+    if (!currentUser) {
+      headers['X-Anon-Id'] = anonId;
+    }
+    return headers;
+  }
 
   // ── Language detection ──
   function detectLanguage(text) {
-    const arabicRe = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-    const turkishRe = /[ğüşöçıİĞÜŞÖÇ]/i;
-    const germanRe = /\b(ich|und|der|die|das|ein|eine|ist|habe|hatte|traum|geträumt)\b/i;
+    var arabicRe = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
+    var turkishRe = /[ğüşöçıİĞÜŞÖÇ]/i;
+    var germanRe = /\b(ich|und|der|die|das|ein|eine|ist|habe|hatte|traum|geträumt)\b/i;
     if (arabicRe.test(text)) return 'ar';
     if (turkishRe.test(text)) return 'tr';
     if (germanRe.test(text)) return 'de';
     return 'fr';
   }
 
-  // ── RTL handling ──
   function applyRTL(lang) {
     if (lang === 'ar') {
       page.classList.add('rtl');
@@ -456,7 +891,7 @@
 
   // ── Add message to chat ──
   function addMessage(text, role) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.className = 'message ' + role;
     if (role === 'ahlam') {
       div.innerHTML = textToParagraphs(text);
@@ -471,7 +906,6 @@
     return div;
   }
 
-  // ── Convert plain text to <p> tags ──
   function textToParagraphs(text) {
     return text.split(/\n{2,}/).filter(Boolean).map(function(p) {
       return '<p>' + escapeHtml(p.trim()) + '</p>';
@@ -479,7 +913,7 @@
   }
 
   function escapeHtml(str) {
-    const d = document.createElement('div');
+    var d = document.createElement('div');
     d.textContent = str;
     return d.innerHTML;
   }
@@ -501,16 +935,16 @@
 
   // ── Loading animation ──
   function showLoading() {
-    const steps = LOADING_STEPS[detectedLang] || LOADING_STEPS.fr;
-    const container = document.createElement('div');
+    var steps = LOADING_STEPS[detectedLang] || LOADING_STEPS.fr;
+    var container = document.createElement('div');
     container.className = 'loading-container';
     if (detectedLang === 'ar') container.setAttribute('dir', 'rtl');
 
-    const textEl = document.createElement('span');
+    var textEl = document.createElement('span');
     textEl.className = 'loading-text';
     textEl.textContent = steps[0];
 
-    const dot = document.createElement('span');
+    var dot = document.createElement('span');
     dot.className = 'loading-dot';
 
     container.appendChild(textEl);
@@ -518,8 +952,8 @@
     messagesEl.appendChild(container);
     scrollToBottom();
 
-    let step = 0;
-    const interval = setInterval(function() {
+    var step = 0;
+    var interval = setInterval(function() {
       step++;
       if (step >= steps.length) {
         clearInterval(interval);
@@ -535,54 +969,62 @@
     return { container: container, cleanup: function() { clearInterval(interval); } };
   }
 
-  // ── Gemini API call with streaming ──
   // ── Anthropic API call with streaming ──
   async function callAnthropic(userText) {
     conversationHistory.push({ role: 'user', content: userText });
 
-    const response = await fetch(API_URL, {
+    var headers = await getAuthHeaders();
+    var response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify({
-        messages: conversationHistory
+        messages: conversationHistory,
+        conversation_id: conversationId,
+        anon_id: currentUser ? undefined : anonId,
       })
     });
 
     if (!response.ok) {
-      const errBody = await response.text();
+      var errBody = await response.text();
+      try {
+        var errJson = JSON.parse(errBody);
+        if (errJson.error === 'rate_limit') {
+          throw new Error('RATE_LIMIT:' + errJson.message);
+        }
+      } catch (e) {
+        if (e.message.startsWith('RATE_LIMIT:')) throw e;
+      }
       throw new Error('API error ' + response.status + ': ' + errBody);
     }
 
     return response;
   }
 
-  // ── Stream response and collect text ──
   async function readStream(response) {
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer = '';
+    var reader = response.body.getReader();
+    var decoder = new TextDecoder();
+    var fullText = '';
+    var buffer = '';
 
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      var result = await reader.read();
+      if (result.done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
+      buffer += decoder.decode(result.value, { stream: true });
+      var lines = buffer.split('\n');
       buffer = lines.pop();
 
-      for (const line of lines) {
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
         if (line.startsWith('data: ')) {
-          const jsonStr = line.slice(6).trim();
+          var jsonStr = line.slice(6).trim();
           if (!jsonStr || jsonStr === '[DONE]') continue;
           try {
-            const data = JSON.parse(jsonStr);
+            var data = JSON.parse(jsonStr);
             if (data.type === 'content_block_delta' && data.delta && data.delta.type === 'text_delta') {
               fullText += data.delta.text;
             }
-          } catch (e) {
-            // skip malformed chunks
-          }
+          } catch (e) {}
         }
       }
     }
@@ -590,17 +1032,16 @@
     return fullText;
   }
 
-  // ── Stream text into a message element word by word ──
   function streamTextInto(el, text, onDone) {
-    const words = text.split(/\b/); // split on word boundaries
-    let shown = '';
-    let wi = 0;
-    const speed = 14; // ms per token
-    const batch = 3; // tokens per tick
+    var words = text.split(/\b/);
+    var shown = '';
+    var wi = 0;
+    var speed = 14;
+    var batch = 3;
     function tick() {
       if (wi < words.length) {
-        const end = Math.min(wi + batch, words.length);
-        for (let j = wi; j < end; j++) shown += words[j];
+        var end = Math.min(wi + batch, words.length);
+        for (var j = wi; j < end; j++) shown += words[j];
         wi = end;
         el.innerHTML = textToParagraphs(shown);
         scrollIfNearBottom();
@@ -610,6 +1051,24 @@
       }
     }
     tick();
+  }
+
+  // ── Save assistant response to Supabase ──
+  async function saveAssistantResponse(text) {
+    if (!conversationId) return;
+    try {
+      var headers = await getAuthHeaders();
+      await fetch('/api/save-response', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          conversation_id: conversationId,
+          content: text,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to save response:', e);
+    }
   }
 
   // ── Main send logic ──
@@ -624,61 +1083,379 @@
       applyRTL(detectedLang);
     }
 
-    // Show user message
-    addMessage(text, 'user');
-
-    // Start loading animation and API call in parallel
-    const loading = showLoading();
-    const loadingStart = Date.now();
-
-    let fullText = '';
-    let apiError = false;
-
-    try {
-      const response = await callAnthropic(text);
-      fullText = await readStream(response);
-    } catch (err) {
-      console.error('Anthropic API error:', err);
-      apiError = true;
-      fullText = detectedLang === 'ar'
-        ? 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
-        : 'Pardonne-moi, une erreur est survenue. Essaie à nouveau.';
+    // Generate conversation ID for new conversations
+    if (!conversationId) {
+      conversationId = crypto.randomUUID ? crypto.randomUUID() : 'conv-' + Date.now() + '-' + Math.random().toString(36).slice(2);
     }
 
-    // Wait for minimum loading time
-    const elapsed = Date.now() - loadingStart;
-    const remaining = MIN_LOADING_MS - elapsed;
+    addMessage(text, 'user');
+
+    var loading = showLoading();
+    var loadingStart = Date.now();
+
+    var fullText = '';
+    var apiError = false;
+    var rateLimited = false;
+
+    try {
+      var response = await callAnthropic(text);
+      fullText = await readStream(response);
+    } catch (err) {
+      console.error('API error:', err);
+      apiError = true;
+      if (err.message.startsWith('RATE_LIMIT:')) {
+        rateLimited = true;
+        fullText = err.message.slice(11);
+      } else {
+        fullText = detectedLang === 'ar'
+          ? 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى.'
+          : 'Pardonne-moi, une erreur est survenue. Essaie à nouveau.';
+      }
+    }
+
+    var elapsed = Date.now() - loadingStart;
+    var remaining = MIN_LOADING_MS - elapsed;
     if (remaining > 0) {
       await new Promise(function(r) { setTimeout(r, remaining); });
     }
 
-    // Remove loading animation
     loading.cleanup();
     loading.container.remove();
 
-    // Add Ahlam's response with streaming effect
-    const msgEl = document.createElement('div');
+    var msgEl = document.createElement('div');
     msgEl.className = 'message ahlam';
     if (detectedLang === 'ar') msgEl.setAttribute('dir', 'rtl');
     messagesEl.appendChild(msgEl);
 
-    // Store in history
     if (!apiError) {
       conversationHistory.push({ role: 'assistant', content: fullText });
     }
 
-    // Stream the text in
+    if (rateLimited) {
+      // Remove the user message from history since it wasn't processed
+      conversationHistory.pop();
+    }
+
     streamTextInto(msgEl, fullText, function() {
       isStreaming = false;
       sendBtn.disabled = false;
-      chatInput.focus();
+      if (!rateLimited) chatInput.focus();
+
+      // Save assistant response to Supabase
+      if (!apiError) {
+        saveAssistantResponse(fullText);
+      }
+
+      // Increment reply count and maybe show signup modal
+      if (!apiError && !rateLimited) {
+        replyCount++;
+        maybeShowSignupModal();
+      }
     });
+  }
+
+  // ═══════════════════════════════════
+  //  SIGNUP MODAL LOGIC
+  // ═══════════════════════════════════
+  var modalOverlay = document.getElementById('modalOverlay');
+  var modalClose = document.getElementById('modalClose');
+  var signupForm = document.getElementById('signupForm');
+  var loginForm = document.getElementById('loginForm');
+  var modalToggle = document.getElementById('modalToggle');
+  var toggleToLogin = document.getElementById('toggleToLogin');
+
+  function maybeShowSignupModal() {
+    if (currentUser) return;
+    if (!supabase) return;
+    if (dismissCount >= 2) return;
+
+    // Show after 1st reply, then again after 2nd if dismissed once
+    if (replyCount === 1 || (replyCount === 2 && dismissCount === 1)) {
+      setTimeout(function() { showModal(); }, 800);
+    }
+  }
+
+  function showModal() {
+    if (currentUser) return;
+    modalOverlay.classList.add('active');
+  }
+
+  function hideModal() {
+    modalOverlay.classList.remove('active');
+    // Reset forms
+    document.getElementById('authError').textContent = '';
+    document.getElementById('loginError').textContent = '';
+  }
+
+  modalClose.addEventListener('click', function() {
+    dismissCount++;
+    localStorage.setItem('almanami_dismiss_count', dismissCount.toString());
+    hideModal();
+  });
+
+  // Toggle between signup and login
+  toggleToLogin.addEventListener('click', function(e) {
+    e.preventDefault();
+    var showingLogin = loginForm.style.display !== 'none';
+    if (showingLogin) {
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'flex';
+      modalToggle.innerHTML = 'Déjà un compte ? <a id="toggleToLogin">Se connecter</a>';
+    } else {
+      signupForm.style.display = 'none';
+      loginForm.style.display = 'flex';
+      modalToggle.innerHTML = 'Pas de compte ? <a id="toggleToLogin">Créer un compte</a>';
+    }
+    // Re-bind click
+    document.getElementById('toggleToLogin').addEventListener('click', arguments.callee);
+  });
+
+  // Signup with email
+  document.getElementById('authSubmit').addEventListener('click', async function() {
+    var name = document.getElementById('authName').value.trim();
+    var email = document.getElementById('authEmail').value.trim();
+    var password = document.getElementById('authPassword').value;
+    var errorEl = document.getElementById('authError');
+
+    if (!name || !email || !password) {
+      errorEl.textContent = 'Veuillez remplir tous les champs.';
+      return;
+    }
+    if (password.length < 6) {
+      errorEl.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+      return;
+    }
+
+    errorEl.textContent = '';
+    this.disabled = true;
+    this.textContent = '...';
+
+    try {
+      var { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { name: name } },
+      });
+
+      if (error) {
+        errorEl.textContent = error.message;
+      } else {
+        hideModal();
+      }
+    } catch (e) {
+      errorEl.textContent = 'Une erreur est survenue.';
+    }
+
+    this.disabled = false;
+    this.textContent = 'Créer un compte';
+  });
+
+  // Login with email
+  document.getElementById('loginSubmit').addEventListener('click', async function() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    var errorEl = document.getElementById('loginError');
+
+    if (!email || !password) {
+      errorEl.textContent = 'Veuillez remplir tous les champs.';
+      return;
+    }
+
+    errorEl.textContent = '';
+    this.disabled = true;
+    this.textContent = '...';
+
+    try {
+      var { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        errorEl.textContent = error.message;
+      } else {
+        hideModal();
+      }
+    } catch (e) {
+      errorEl.textContent = 'Une erreur est survenue.';
+    }
+
+    this.disabled = false;
+    this.textContent = 'Se connecter';
+  });
+
+  // Google OAuth
+  function handleGoogleLogin() {
+    if (!supabase) return;
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/chat' },
+    });
+  }
+
+  document.getElementById('googleBtn').addEventListener('click', handleGoogleLogin);
+  document.getElementById('googleBtn2').addEventListener('click', handleGoogleLogin);
+
+  // ═══════════════════════════════════
+  //  DREAM JOURNAL
+  // ═══════════════════════════════════
+  var journalBtn = document.getElementById('journalBtn');
+  var journalPanel = document.getElementById('journalPanel');
+  var journalOverlay = document.getElementById('journalOverlay');
+  var journalClose = document.getElementById('journalClose');
+  var journalList = document.getElementById('journalList');
+  var journalOpen = false;
+  var longPressTimer = null;
+
+  function toggleJournal() {
+    journalOpen = !journalOpen;
+    journalPanel.classList.toggle('open', journalOpen);
+    journalOverlay.classList.toggle('active', journalOpen);
+    if (journalOpen) loadConversations();
+  }
+
+  journalBtn.addEventListener('click', toggleJournal);
+  journalClose.addEventListener('click', toggleJournal);
+  journalOverlay.addEventListener('click', toggleJournal);
+
+  async function loadConversations() {
+    if (!supabase || !currentUser) return;
+
+    try {
+      var headers = await getAuthHeaders();
+      var res = await fetch('/api/conversations', { headers: headers });
+      if (!res.ok) return;
+      var conversations = await res.json();
+
+      if (!conversations.length) {
+        journalList.innerHTML = '<div class="journal-empty">Vos rêves interprétés apparaîtront ici</div>';
+        return;
+      }
+
+      journalList.innerHTML = '';
+      conversations.forEach(function(conv) {
+        var item = document.createElement('div');
+        item.className = 'journal-item';
+        item.dataset.id = conv.id;
+
+        var title = document.createElement('div');
+        title.className = 'journal-item-title';
+        title.textContent = conv.title || 'Rêve sans titre';
+
+        var date = document.createElement('div');
+        date.className = 'journal-item-date';
+        date.textContent = new Date(conv.created_at).toLocaleDateString('fr-FR', {
+          day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        var del = document.createElement('button');
+        del.className = 'journal-item-delete';
+        del.innerHTML = '&#x1F5D1;';
+        del.title = 'Supprimer';
+
+        item.appendChild(title);
+        item.appendChild(date);
+        item.appendChild(del);
+
+        // Click to load conversation
+        item.addEventListener('click', function(e) {
+          if (e.target === del || e.target.closest('.journal-item-delete')) return;
+          loadConversation(conv.id);
+          toggleJournal();
+        });
+
+        // Delete button (desktop hover)
+        del.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (confirm('Supprimer cette conversation ?')) {
+            deleteConversation(conv.id, item);
+          }
+        });
+
+        // Long-press to delete (mobile)
+        item.addEventListener('touchstart', function() {
+          longPressTimer = setTimeout(function() {
+            if (confirm('Supprimer cette conversation ?')) {
+              deleteConversation(conv.id, item);
+            }
+          }, 600);
+        });
+        item.addEventListener('touchend', function() { clearTimeout(longPressTimer); });
+        item.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
+
+        journalList.appendChild(item);
+      });
+    } catch (e) {
+      console.error('Failed to load conversations:', e);
+    }
+  }
+
+  async function loadConversation(convId) {
+    try {
+      var headers = await getAuthHeaders();
+      var res = await fetch('/api/messages?conversation_id=' + convId, { headers: headers });
+      if (!res.ok) return;
+      var messages = await res.json();
+
+      // Clear current chat
+      messagesEl.innerHTML = '';
+      conversationHistory = [];
+      conversationId = convId;
+
+      messages.forEach(function(msg) {
+        if (msg.role === 'user') {
+          addMessage(msg.content, 'user');
+          conversationHistory.push({ role: 'user', content: msg.content });
+        } else {
+          addMessage(msg.content, 'ahlam');
+          conversationHistory.push({ role: 'assistant', content: msg.content });
+        }
+      });
+
+      // Detect language from first user message
+      if (conversationHistory.length > 0) {
+        var firstUserMsg = conversationHistory.find(function(m) { return m.role === 'user'; });
+        if (firstUserMsg) {
+          detectedLang = detectLanguage(firstUserMsg.content);
+          applyRTL(detectedLang);
+        }
+      }
+
+      chatInput.focus();
+    } catch (e) {
+      console.error('Failed to load conversation:', e);
+    }
+  }
+
+  async function deleteConversation(convId, itemEl) {
+    try {
+      var headers = await getAuthHeaders();
+      var res = await fetch('/api/conversations?id=' + convId, {
+        method: 'DELETE',
+        headers: headers,
+      });
+      if (res.ok && itemEl) {
+        itemEl.remove();
+        // Check if list is now empty
+        if (!journalList.querySelector('.journal-item')) {
+          journalList.innerHTML = '<div class="journal-empty">Vos rêves interprétés apparaîtront ici</div>';
+        }
+        // If deleted conversation was the active one, reset
+        if (convId === conversationId) {
+          messagesEl.innerHTML = '';
+          conversationHistory = [];
+          conversationId = null;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to delete conversation:', e);
+    }
   }
 
   // ── Input auto-resize ──
   chatInput.addEventListener('input', function() {
     this.style.height = 'auto';
-    const target = Math.max(50, Math.min(this.scrollHeight, 160));
+    var target = Math.max(50, Math.min(this.scrollHeight, 160));
     this.style.height = target + 'px';
     this.style.overflow = this.scrollHeight > 160 ? 'auto' : 'hidden';
   });
@@ -687,7 +1464,7 @@
   chatInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      const text = this.value.trim();
+      var text = this.value.trim();
       if (text && !isStreaming) {
         this.value = '';
         this.style.height = '50px';
@@ -698,7 +1475,7 @@
   });
 
   sendBtn.addEventListener('click', function() {
-    const text = chatInput.value.trim();
+    var text = chatInput.value.trim();
     if (text && !isStreaming) {
       chatInput.value = '';
       chatInput.style.height = '50px';
@@ -707,10 +1484,15 @@
     }
   });
 
-  // ── Init: grab dream from localStorage and auto-send ──
-  const dream = localStorage.getItem('almanami_dream');
+  // ── Init ──
+  initSupabase();
+
+  // Grab dream from localStorage and auto-send
+  var dream = localStorage.getItem('almanami_dream');
   if (dream) {
     localStorage.removeItem('almanami_dream');
+    // New dream from homepage = new conversation
+    conversationId = null;
     setTimeout(function() { sendMessage(dream); }, 300);
   } else {
     chatInput.focus();

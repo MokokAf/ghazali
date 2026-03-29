@@ -1,24 +1,9 @@
 import { SYSTEM_PROMPT } from './_system-prompt.js';
-
-const ALLOWED_ORIGINS = [
-  'https://almanami.com',
-  'https://www.almanami.com',
-  'http://localhost:8080',
-  'http://localhost:3000',
-];
+import { supabaseQuery, getAuthUser } from './_supabase.js';
+import { setCors, getUserIdentity } from './_cors.js';
 
 export default async function handler(req, res) {
-  // CORS
-  const origin = req.headers.origin || '';
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
+  if (setCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -29,8 +14,10 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'API key not configured' });
   }
 
+  const supabaseConfigured = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
+
   try {
-    const { messages } = req.body;
+    const { messages, conversation_id, anon_id: bodyAnonId } = req.body;
 
     // Input validation
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -48,6 +35,81 @@ export default async function handler(req, res) {
       }
     }
 
+    // Identify user
+    let userId = null;
+    let anonId = bodyAnonId || req.headers['x-anon-id'] || null;
+
+    if (supabaseConfigured) {
+      const identity = await getUserIdentity(req, getAuthUser);
+      userId = identity.userId;
+      if (userId) anonId = null;
+
+      // Rate limiting: 3 assistant replies per user per hour
+      const userFilter = userId
+        ? `conversations.user_id=eq.${userId}`
+        : anonId
+          ? `conversations.anon_id=eq.${anonId}`
+          : null;
+
+      if (userFilter) {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+        try {
+          const recentMessages = await supabaseQuery(
+            `messages?select=id,conversation_id,conversations(user_id,anon_id)&role=eq.assistant&created_at=gte.${oneHourAgo}&${userFilter}`,
+          );
+          if (recentMessages && recentMessages.length >= 3) {
+            return res.status(429).json({
+              error: 'rate_limit',
+              message: 'Ahlam ne peut répondre que trois fois par heure. Merci de revenir dans une heure.',
+            });
+          }
+        } catch (e) {
+          console.error('Rate limit check failed:', e);
+          // Don't block the request if rate limit check fails
+        }
+      }
+
+      // Create conversation if needed + save user message
+      if (conversation_id) {
+        const userMsg = messages[messages.length - 1];
+        try {
+          // Check if conversation exists
+          const existing = await supabaseQuery(
+            `conversations?id=eq.${conversation_id}&select=id`,
+          );
+
+          if (!existing || existing.length === 0) {
+            // Create new conversation with title from first message
+            const title = userMsg.content.slice(0, 50) + (userMsg.content.length > 50 ? '…' : '');
+            await supabaseQuery('conversations', {
+              method: 'POST',
+              prefer: 'return=minimal',
+              body: {
+                id: conversation_id,
+                user_id: userId,
+                anon_id: anonId,
+                title,
+              },
+            });
+          }
+
+          // Save user message
+          await supabaseQuery('messages', {
+            method: 'POST',
+            prefer: 'return=minimal',
+            body: {
+              conversation_id,
+              role: 'user',
+              content: userMsg.content,
+            },
+          });
+        } catch (e) {
+          console.error('Failed to save user message:', e);
+        }
+      }
+    }
+
+    // Call Anthropic
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -60,7 +122,7 @@ export default async function handler(req, res) {
         max_tokens: 16000,
         stream: true,
         system: SYSTEM_PROMPT,
-        messages: messages,
+        messages,
       }),
     });
 

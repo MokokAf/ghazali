@@ -2,6 +2,21 @@
   "functions": {
     "api/chat.js": {
       "maxDuration": 60
+    },
+    "api/save-response.js": {
+      "maxDuration": 10
+    },
+    "api/conversations.js": {
+      "maxDuration": 10
+    },
+    "api/messages.js": {
+      "maxDuration": 10
+    },
+    "api/migrate-anon.js": {
+      "maxDuration": 10
+    },
+    "api/config.js": {
+      "maxDuration": 5
     }
   },
   "rewrites": [
