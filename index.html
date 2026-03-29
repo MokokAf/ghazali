@@ -436,7 +436,7 @@
   }
   .auth-link.signed-in .auth-link-inner svg { display: block; }
   .auth-link-inner:hover svg { opacity: 0.55; }
-  .auth-link a {
+  .auth-link span {
     font-family: 'Cormorant Garamond', serif;
     font-size: 15px;
     font-weight: 300;
@@ -445,14 +445,15 @@
     letter-spacing: 0.04em;
     cursor: pointer;
     transition: color 0.4s ease;
+    -webkit-tap-highlight-color: transparent;
   }
-  .auth-link a:hover {
+  .auth-link span:hover {
     color: rgba(255, 255, 255, 0.55);
   }
-  .auth-link.signed-in a {
+  .auth-link.signed-in span {
     color: rgba(255, 255, 255, 0.30);
   }
-  .auth-link.signed-in .auth-link-inner:hover a {
+  .auth-link.signed-in .auth-link-inner:hover span {
     color: rgba(255, 255, 255, 0.55);
   }
 
@@ -665,7 +666,7 @@
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
       <circle cx="12" cy="7" r="4" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <a id="authAction">Se connecter</a>
+    <span id="authAction" role="button" tabindex="0">Se connecter</span>
     <div class="auth-dropdown" id="authDropdown">
       <button class="auth-dropdown-item" id="logoutBtn">Se déconnecter</button>
     </div>
@@ -712,14 +713,7 @@
     var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || user.email;
     authAction.textContent = name;
     authLink.classList.add('signed-in');
-    authAction.removeEventListener('click', doGoogleLogin);
     isSignedIn = true;
-
-    // Click on name toggles dropdown
-    authAction.addEventListener('click', function(e) {
-      e.stopPropagation();
-      authDropdown.classList.toggle('visible');
-    });
   }
 
   function showSignedOut() {
@@ -727,19 +721,29 @@
     authLink.classList.remove('signed-in');
     authDropdown.classList.remove('visible');
     isSignedIn = false;
-    authAction.addEventListener('click', doGoogleLogin);
   }
 
   function doGoogleLogin() {
-    if (!sb || isSignedIn) return;
+    if (!sb) return;
     sb.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + '/' },
     });
   }
 
+  // Single click handler — routes based on auth state
+  authAction.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (isSignedIn) {
+      authDropdown.classList.toggle('visible');
+    } else {
+      doGoogleLogin();
+    }
+  });
+
   // Logout
-  logoutBtn.addEventListener('click', async function() {
+  logoutBtn.addEventListener('click', async function(e) {
+    e.stopPropagation();
     if (!sb) return;
     await sb.auth.signOut();
     authDropdown.classList.remove('visible');
