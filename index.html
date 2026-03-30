@@ -427,15 +427,33 @@
     cursor: pointer;
     position: relative;
   }
-  .auth-link-inner svg {
+  .auth-link-inner svg.profile-icon {
     width: 15px;
     height: 15px;
     opacity: 0.30;
     transition: opacity 0.4s;
     display: none;
   }
-  .auth-link.signed-in .auth-link-inner svg { display: block; }
-  .auth-link-inner:hover svg { opacity: 0.55; }
+  .auth-link.signed-in .auth-link-inner svg.profile-icon { display: block; }
+  .auth-link-inner:hover svg.profile-icon { opacity: 0.55; }
+
+  /* ── journal link on homepage ── */
+  .home-journal-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    opacity: 0.35;
+    transition: opacity 0.4s;
+  }
+  .home-journal-btn:hover { opacity: 0.65; }
+  .home-journal-btn.visible { display: block; }
+  .home-journal-btn svg { width: 22px; height: 22px; }
   .auth-link span {
     font-family: 'Cormorant Garamond', serif;
     font-size: 15px;
@@ -660,9 +678,15 @@
 
 </main>
 
+<a href="/chat" class="home-journal-btn" id="homeJournalBtn" title="Journal de rêves" aria-label="Journal de rêves">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</a>
+
 <div class="auth-link" id="authLink">
   <div class="auth-link-inner" id="authInner">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="profile-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
       <circle cx="12" cy="7" r="4" stroke="rgba(255,255,255,0.8)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
@@ -709,16 +733,20 @@
     } catch (e) {}
   }
 
+  var homeJournalBtn = document.getElementById('homeJournalBtn');
+
   function showSignedIn(user) {
     var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || user.email;
     authAction.textContent = name;
     authLink.classList.add('signed-in');
+    homeJournalBtn.classList.add('visible');
     isSignedIn = true;
   }
 
   function showSignedOut() {
     authAction.textContent = 'Se connecter';
     authLink.classList.remove('signed-in');
+    homeJournalBtn.classList.remove('visible');
     authDropdown.classList.remove('visible');
     isSignedIn = false;
   }
