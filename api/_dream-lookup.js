@@ -1,14 +1,13 @@
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// Try multiple paths — Vercel serverless may resolve differently than local
-const DATA_CANDIDATES = [
-  join(__dirname, '..', 'data', 'dream_entries.json'),
-  join(process.cwd(), 'data', 'dream_entries.json'),
-  '/var/task/data/dream_entries.json',
-];
+let rawDreamData;
+try {
+  rawDreamData = require('../data/dream_entries.json');
+} catch (e) {
+  console.error('Failed to load dream_entries.json:', e.message);
+  rawDreamData = null;
+}
 
 let dreamDict = null;
 let lookupIndex = null; // Map<lowercase_word, Set<entry_key>>
@@ -16,21 +15,12 @@ let mainEntryNames = null; // Set of simple (non-compound) entry names
 
 function loadData() {
   if (dreamDict) return;
-  let loaded = false;
-  for (const candidate of DATA_CANDIDATES) {
-    try {
-      dreamDict = JSON.parse(readFileSync(candidate, 'utf-8'));
-      loaded = true;
-      break;
-    } catch (e) {
-      // Try next path
-    }
-  }
-  if (!loaded) {
-    console.error('Dream dictionary not found at any candidate path');
+  if (!rawDreamData) {
+    console.error('Dream dictionary not available');
     dreamDict = {};
     return;
   }
+  dreamDict = rawDreamData;
   lookupIndex = new Map();
   mainEntryNames = new Set();
 

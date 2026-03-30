@@ -1,8 +1,7 @@
 {
   "functions": {
     "api/chat.js": {
-      "maxDuration": 60,
-      "includeFiles": "data/dream_entries.json"
+      "maxDuration": 60
     },
     "api/save-response.js": {
       "maxDuration": 10
