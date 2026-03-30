@@ -1,7 +1,7 @@
 import { SYSTEM_PROMPT } from './_system-prompt.js';
 import { supabaseQuery, getAuthUser } from './_supabase.js';
 import { setCors, getUserIdentity } from './_cors.js';
-// import { getDreamContext } from './_dream-lookup.js';
+import { getDreamContext } from './_dream-lookup.js';
 
 export default async function handler(req, res) {
   if (setCors(req, res)) return;
@@ -114,8 +114,18 @@ export default async function handler(req, res) {
       }
     }
 
-    // Dream dictionary injection (temporarily disabled for debugging)
+    // Inject dream dictionary context into the last user message
     const enrichedMessages = [...messages];
+    const lastMsg = enrichedMessages[enrichedMessages.length - 1];
+    if (lastMsg && lastMsg.role === 'user') {
+      const context = getDreamContext(lastMsg.content);
+      if (context) {
+        enrichedMessages[enrichedMessages.length - 1] = {
+          ...lastMsg,
+          content: `[REFERENCE]\n${context}\n[/REFERENCE]\n\n${lastMsg.content}`,
+        };
+      }
+    }
 
     // Call Anthropic
     const response = await fetch('https://api.anthropic.com/v1/messages', {

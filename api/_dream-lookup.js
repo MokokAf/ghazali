@@ -1,13 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-let rawDreamData;
-try {
-  rawDreamData = require('../data/dream_entries.json');
-} catch (e) {
-  console.error('Failed to load dream_entries.json:', e.message);
-  rawDreamData = null;
-}
+import { DREAM_ENTRIES } from './_dream-data.js';
 
 let dreamDict = null;
 let lookupIndex = null; // Map<lowercase_word, Set<entry_key>>
@@ -15,12 +6,12 @@ let mainEntryNames = null; // Set of simple (non-compound) entry names
 
 function loadData() {
   if (dreamDict) return;
-  if (!rawDreamData) {
+  if (!DREAM_ENTRIES) {
     console.error('Dream dictionary not available');
     dreamDict = {};
     return;
   }
-  dreamDict = rawDreamData;
+  dreamDict = DREAM_ENTRIES;
   lookupIndex = new Map();
   mainEntryNames = new Set();
 
