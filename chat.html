@@ -930,10 +930,12 @@
   // ── Language detection ──
   function detectLanguage(text) {
     var arabicRe = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
-    var turkishRe = /[ğüşöçıİĞÜŞÖÇ]/i;
+    // Turkish-only chars: ğ, ş, ı (dotless i), İ (dotted I) — excludes ç/ü/ö shared with French
+    var turkishCharRe = /[ğşıİĞŞ]/;
+    var turkishWordRe = /\b(rüya|gördüm|rüyamda|bir|ben|ve|bu|için|var|çok|ama)\b/i;
     var germanRe = /\b(ich|und|der|die|das|ein|eine|ist|habe|hatte|traum|geträumt)\b/i;
     if (arabicRe.test(text)) return 'ar';
-    if (turkishRe.test(text)) return 'tr';
+    if (turkishCharRe.test(text) || turkishWordRe.test(text)) return 'tr';
     if (germanRe.test(text)) return 'de';
     return 'fr';
   }
