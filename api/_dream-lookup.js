@@ -3,7 +3,12 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_PATH = join(__dirname, '..', 'data', 'dream_entries.json');
+// Try multiple paths — Vercel serverless may resolve differently than local
+const DATA_CANDIDATES = [
+  join(__dirname, '..', 'data', 'dream_entries.json'),
+  join(process.cwd(), 'data', 'dream_entries.json'),
+  '/var/task/data/dream_entries.json',
+];
 
 let dreamDict = null;
 let lookupIndex = null; // Map<lowercase_word, Set<entry_key>>
@@ -11,7 +16,21 @@ let mainEntryNames = null; // Set of simple (non-compound) entry names
 
 function loadData() {
   if (dreamDict) return;
-  dreamDict = JSON.parse(readFileSync(DATA_PATH, 'utf-8'));
+  let loaded = false;
+  for (const candidate of DATA_CANDIDATES) {
+    try {
+      dreamDict = JSON.parse(readFileSync(candidate, 'utf-8'));
+      loaded = true;
+      break;
+    } catch (e) {
+      // Try next path
+    }
+  }
+  if (!loaded) {
+    console.error('Dream dictionary not found at any candidate path');
+    dreamDict = {};
+    return;
+  }
   lookupIndex = new Map();
   mainEntryNames = new Set();
 
@@ -256,6 +275,15 @@ const STOP_WORDS = new Set([
  * Returns formatted string for injection into user message, or null if no matches.
  */
 export function getDreamContext(dreamText) {
+  try {
+    return _getDreamContextInner(dreamText);
+  } catch (e) {
+    console.error('getDreamContext error:', e.message);
+    return null;
+  }
+}
+
+function _getDreamContextInner(dreamText) {
   loadData();
 
   // Strip Islamic formulas before matching (they're not dream symbols)
