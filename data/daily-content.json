@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "surah_ar": "الزمر",
+    "surah_latin": "Az-Zumar 39:10",
+    "ayah_ar": "إِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ",
+    "ayah_fr": "Les endurants auront leur pleine récompense sans compter.",
+    "paragraphe_f": "Cette liste mentale de tout ce que tu fais pour eux, tu la connais par cœur. Les repas, les rendez-vous, les silences que tu avales pour garder la paix. Tu appelles ça de la patience mais c'est devenu un rôle — celle qui tient tout sans rien demander. Le problème c'est pas qu'ils ne voient pas. C'est que tu as arrêté de croire que c'était normal d'être vue.",
+    "paragraphe_m": "Cette liste mentale de tout ce que tu fais pour eux, tu la connais par cœur. Les efforts, les sacrifices, les silences que tu avales pour garder la paix. Tu appelles ça de la patience mais c'est devenu un rôle — celui qui tient tout sans rien demander. Le problème c'est pas qu'ils ne voient pas. C'est que tu as arrêté de croire que c'était normal d'être vu.",
+    "niyyah": ["Endurer", "Faire confiance", "Continuer"],
+    "tanbih": ["Comptabiliser", "Reprocher", "S'épuiser"]
+  },
+  {
+    "id": 2,
+    "surah_ar": "البقرة",
+    "surah_latin": "Al-Baqara 2:286",
+    "ayah_ar": "لَا يُكَلِّفُ ٱللَّهُ نَفۡسًا إِلَّا وُسۡعَهَا",
+    "ayah_fr": "Allah n'impose à aucune âme une charge supérieure à sa capacité.",
+    "paragraphe_f": "Tu portes des choses qui ne t'appartiennent pas. La douleur des autres, leurs attentes, leurs silences. Tu t'es convaincue que si tu lâchais, tout s'effondrerait. Mais la vérité c'est que tu t'effondres toi, lentement, sous un poids que personne ne t'a demandé de porter.",
+    "paragraphe_m": "Tu portes des choses qui ne t'appartiennent pas. La douleur des autres, leurs attentes, leurs silences. Tu t'es convaincu que si tu lâchais, tout s'effondrerait. Mais la vérité c'est que tu t'effondres toi, lentement, sous un poids que personne ne t'a demandé de porter.",
+    "niyyah": ["Lâcher prise", "Accepter", "Respirer"],
+    "tanbih": ["Contrôler", "S'oublier", "Culpabiliser"]
+  },
+  {
+    "id": 3,
+    "surah_ar": "الشرح",
+    "surah_latin": "Ash-Sharh 94:5-6",
+    "ayah_ar": "فَإِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرًا ﴿٥﴾ إِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرًا",
+    "ayah_fr": "Certes, avec la difficulté il y a une facilité. Certes, avec la difficulté il y a une facilité.",
+    "paragraphe_f": "Tu cherches la sortie depuis si longtemps que tu as oublié que tu avances. Chaque jour qui passe sans que tu craques est une preuve. Pas de ta faiblesse — de ta force. Le soulagement ne vient pas après l'épreuve. Il est déjà là, caché dedans.",
+    "paragraphe_m": "Tu cherches la sortie depuis si longtemps que tu as oublié que tu avances. Chaque jour qui passe sans que tu craques est une preuve. Pas de ta faiblesse — de ta force. Le soulagement ne vient pas après l'épreuve. Il est déjà là, caché dedans.",
+    "niyyah": ["Persévérer", "Espérer", "Observer"],
+    "tanbih": ["Désespérer", "Comparer", "Fuir"]
+  },
+  {
+    "id": 4,
+    "surah_ar": "الرعد",
+    "surah_latin": "Ar-Ra'd 13:28",
+    "ayah_ar": "أَلَا بِذِكۡرِ ٱللَّهِ تَطۡمَئِنُّ ٱلۡقُلُوبُ",
+    "ayah_fr": "N'est-ce point par le rappel d'Allah que les cœurs s'apaisent ?",
+    "paragraphe_f": "Tu cours d'une tâche à l'autre sans jamais t'arrêter. Tu remplis le silence avec du bruit, l'ennui avec de l'action, le vide avec des obligations. Parce que si tu t'arrêtais, tu entendrais ce que ton cœur essaie de te dire depuis des mois. Et ça, ça te fait peur.",
+    "paragraphe_m": "Tu cours d'une tâche à l'autre sans jamais t'arrêter. Tu remplis le silence avec du bruit, l'ennui avec de l'action, le vide avec des obligations. Parce que si tu t'arrêtais, tu entendrais ce que ton cœur essaie de te dire depuis des mois. Et ça, ça te fait peur.",
+    "niyyah": ["S'arrêter", "Écouter", "Se souvenir"],
+    "tanbih": ["S'agiter", "Distraire", "Ignorer"]
+  },
+  {
+    "id": 5,
+    "surah_ar": "القيامة",
+    "surah_latin": "Al-Qiyama 75:2",
+    "ayah_ar": "وَلَآ أُقۡسِمُ بِٱلنَّفۡسِ ٱللَّوَّامَةِ",
+    "ayah_fr": "Je jure par l'âme qui ne cesse de se blâmer.",
+    "paragraphe_f": "Tu rejoues la scène en boucle. Ce que tu aurais dû dire. Ce que tu aurais dû faire. Cette voix dans ta tête qui te dit que tu n'es pas assez. Mais cette voix, c'est pas ton ennemie. C'est ta conscience qui refuse de dormir. Le problème c'est pas qu'elle parle. C'est que tu ne lui réponds jamais avec douceur.",
+    "paragraphe_m": "Tu rejoues la scène en boucle. Ce que tu aurais dû dire. Ce que tu aurais dû faire. Cette voix dans ta tête qui te dit que tu n'es pas assez. Mais cette voix, c'est pas ton ennemi. C'est ta conscience qui refuse de dormir. Le problème c'est pas qu'elle parle. C'est que tu ne lui réponds jamais avec douceur.",
+    "niyyah": ["Pardonner", "Avancer", "Douceur"],
+    "tanbih": ["Ruminer", "Se punir", "Stagner"]
+  },
+  {
+    "id": 6,
+    "surah_ar": "آل عمران",
+    "surah_latin": "Al Imran 3:159",
+    "ayah_ar": "فَبِمَا رَحۡمَةٖ مِّنَ ٱللَّهِ لِنتَ لَهُمۡ",
+    "ayah_fr": "C'est par une miséricorde d'Allah que tu as été doux envers eux.",
+    "paragraphe_f": "Tu donnes tellement que tu ne sais plus recevoir. Quand quelqu'un te fait un compliment, tu le minimises. Quand on t'offre de l'aide, tu refuses. Tu as appris que l'amour se prouve en se sacrifiant. Mais la douceur, la vraie, commence par celle que tu t'accordes.",
+    "paragraphe_m": "Tu donnes tellement que tu ne sais plus recevoir. Quand quelqu'un te fait un compliment, tu le minimises. Quand on t'offre de l'aide, tu refuses. Tu as appris que l'amour se prouve en se sacrifiant. Mais la douceur, la vraie, commence par celle que tu t'accordes.",
+    "niyyah": ["Recevoir", "Remercier", "S'adoucir"],
+    "tanbih": ["Refuser", "Minimiser", "S'endurcir"]
+  },
+  {
+    "id": 7,
+    "surah_ar": "الفجر",
+    "surah_latin": "Al-Fajr 89:27-28",
+    "ayah_ar": "يَـٰٓأَيَّتُهَا ٱلنَّفۡسُ ٱلۡمُطۡمَئِنَّةُ ﴿٢٧﴾ ٱرۡجِعِىٓ إِلَىٰ رَبِّكِ رَاضِيَةٗ مَّرۡضِيَّةٗ",
+    "ayah_fr": "Ô toi, âme apaisée, retourne vers ton Seigneur, satisfaite et agréée.",
+    "paragraphe_f": "Il y a des jours où tu sens cette paix. Pas parce que tout va bien — mais parce que quelque chose en toi a cessé de résister. Tu ne comprends pas d'où ça vient. C'est rare, fragile, et ça ne dure jamais assez. Mais c'est la preuve que ton âme connaît le chemin.",
+    "paragraphe_m": "Il y a des jours où tu sens cette paix. Pas parce que tout va bien — mais parce que quelque chose en toi a cessé de résister. Tu ne comprends pas d'où ça vient. C'est rare, fragile, et ça ne dure jamais assez. Mais c'est la preuve que ton âme connaît le chemin.",
+    "niyyah": ["Gratitude", "Présence", "Sérénité"],
+    "tanbih": ["Orgueil", "Négligence", "Complaisance"]
+  }
+]

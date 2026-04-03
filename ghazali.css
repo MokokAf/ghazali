@@ -1149,16 +1149,7 @@ html, body {
   border-color: var(--gold);
 }
 
-.ob-input-label {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  margin-top: 20px;
-}
+/* .ob-input-label removed (parents screen) */
 
 .ob-privacy {
   font-family: var(--font-mono);
@@ -1279,308 +1270,119 @@ html, body {
   text-transform: uppercase;
 }
 
-/* Pill selectors */
-.ob-pills {
+/* [Removed: pills, nafs cards, loading, reveal, date picker, hijri reveal] */
+
+/* Notification mocks (screen 4) */
+.ob-notif-icon {
+  font-family: var(--font-arabic);
+  font-size: 12px;
+  color: var(--gold);
+  margin-right: 6px;
+}
+
+/* Platform selection */
+.ob-platform-select {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  margin: 20px 0;
 }
 
-.ob-pill {
-  border: 1px solid var(--indigo-muted);
+.ob-platform-btn {
+  flex: 1;
+  padding: 16px;
   background: transparent;
-  padding: 16px 20px;
+  border: 1px solid var(--indigo-muted);
   cursor: pointer;
+  text-align: center;
   -webkit-tap-highlight-color: transparent;
-  transition: all 0.2s ease;
 }
 
-.ob-pill span {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--vellum);
-  transition: color 0.2s ease;
+.ob-platform-btn:active { transform: scale(0.98); }
+
+.ob-platform-btn span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--indigo-secondary);
+  text-transform: uppercase;
 }
 
-.ob-pill.selected {
+.ob-platform-btn.selected {
   border-color: var(--gold);
   background: var(--gold-active-bg);
 }
 
-.ob-pill.selected span {
+.ob-platform-btn.selected span {
   color: var(--gold);
 }
 
-/* Nafs cards */
-.ob-nafs-cards {
+/* iOS install instructions */
+.ob-ios-steps {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.ob-ios-step {
+  display: flex;
+  align-items: flex-start;
   gap: 12px;
 }
 
-.ob-nafs-card {
-  border: 1px solid var(--indigo-muted);
-  background: transparent;
-  padding: 20px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: all 0.2s ease;
-}
-
-.ob-nafs-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 8px;
-}
-
-.ob-nafs-card-ar {
-  font-family: var(--font-arabic);
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--vellum);
-  transition: color 0.2s ease;
-}
-
-.ob-nafs-card-latin {
+.ob-ios-step-num {
   font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: color 0.2s ease;
+  font-size: 10px;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.ob-nafs-card-desc {
+.ob-ios-step-text {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 300;
-  color: var(--indigo-secondary);
+  color: var(--vellum-dim);
   line-height: 1.6;
 }
 
-.ob-nafs-card.selected {
-  border-color: var(--gold);
-  background: var(--gold-active-bg);
+.ob-ios-step-text svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 2px;
 }
 
-.ob-nafs-card.selected .ob-nafs-card-ar,
-.ob-nafs-card.selected .ob-nafs-card-latin {
-  color: var(--gold);
-}
-
-/* Loading screen */
-.ob-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  text-align: center;
-}
-
-.ob-loading-ar {
-  font-family: var(--font-arabic);
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--gold);
-  margin-bottom: 12px;
-}
-
-.ob-loading-fr {
+/* Install flow states */
+.ob-install-fallback,
+.ob-ios-reminder {
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 300;
   font-style: italic;
   color: var(--indigo-secondary);
-  margin-bottom: 6px;
-}
-
-.ob-loading-ref {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  letter-spacing: 1px;
-  margin-bottom: 32px;
-}
-
-.ob-loading-bar {
-  width: 40px;
-  height: 1px;
-  background: var(--gold);
-  animation: pulse-bar 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-bar {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-/* Profile reveal */
-.ob-reveal {
   text-align: center;
+  margin: 12px 0;
 }
 
-.ob-reveal-name-ar {
-  font-family: var(--font-arabic);
-  font-size: 36px;
-  font-weight: 400;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-
-.ob-reveal-name-latin {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--gold);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.ob-reveal-meaning {
-  font-family: var(--font-serif);
-  font-size: 14px;
-  font-weight: 300;
-  font-style: italic;
-  color: var(--indigo-secondary);
-  margin-bottom: 28px;
-}
-
-.ob-reveal-closing {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--vellum-dim);
-  line-height: 1.85;
-  text-align: center;
-  margin-top: 28px;
-  margin-bottom: 28px;
-}
-
-/* Date picker */
-.ob-date-picker {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  height: 200px;
-  overflow: hidden;
-  position: relative;
-  margin-bottom: 20px;
-}
-
-/* Gold highlight band fixed in center */
-.ob-date-picker::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 40px);
-  max-width: 320px;
-  height: 44px;
-  border-top: 1px solid var(--gold);
-  border-bottom: 1px solid var(--gold);
-  background: rgba(232,198,93,0.08);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Fade edges top and bottom */
-.ob-date-picker::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom,
-    var(--indigo-ground) 0%,
-    transparent 30%,
-    transparent 70%,
-    var(--indigo-ground) 100%
-  );
-  pointer-events: none;
-  z-index: 2;
-}
-
-.ob-date-col {
-  flex: 1;
-  max-width: 120px;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: y mandatory;
-}
-
-.ob-date-col::-webkit-scrollbar {
+.ob-flow-container {
   display: none;
 }
 
-.ob-date-item {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-serif);
-  font-size: 16px;
-  font-weight: 300;
-  color: var(--indigo-muted);
-  scroll-snap-align: center;
-  cursor: pointer;
-  transition: color 0.15s ease, font-size 0.15s ease;
-  user-select: none;
-  -webkit-user-select: none;
+.ob-flow-container.active {
+  display: block;
 }
 
-.ob-date-item.selected {
-  font-size: 22px;
-  color: var(--vellum);
-}
+/* --- end of new screen 4 styles --- */
 
-/* Hijri reveal */
-.ob-hijri-reveal {
-  text-align: center;
-}
+/* [Deleted: nafs cards, loading, reveal, date picker, hijri reveal — see git history] */
 
-.ob-hijri-label {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
 
-.ob-hijri-date {
-  font-family: var(--font-arabic);
-  font-size: 42px;
-  font-weight: 400;
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-
-.ob-hijri-latin {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--indigo-secondary);
-  letter-spacing: 1px;
-  margin-bottom: 20px;
-}
-
-.ob-hijri-note {
-  font-family: var(--font-serif);
-  font-size: 14px;
-  font-weight: 300;
-  font-style: italic;
-  color: var(--indigo-secondary);
-  line-height: 1.7;
-}
-
-/* Notification mocks */
+/* Notification mocks — frosted glass */
 .ob-notif-stack {
   display: flex;
   flex-direction: column;
@@ -1591,6 +1393,9 @@ html, body {
 .ob-notif {
   border: 1px solid var(--indigo-structure);
   padding: 14px 16px;
+  background: rgba(26, 45, 66, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .ob-notif-header {

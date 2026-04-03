@@ -7,6 +7,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>GHAZALI · الغزالي</title>
+  <meta property="og:title" content="Ghazali — Miroir de ton âme">
+  <meta property="og:description" content="Un compagnon spirituel islamique. Chaque jour, une lecture coranique personnalisée.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ghazali.app/app">
+  <meta property="og:image" content="https://ghazali.app/icon-512.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghazali — Miroir de ton âme">
+  <meta name="twitter:description" content="Un compagnon spirituel islamique. Chaque jour, une lecture coranique personnalisée.">
+  <meta name="twitter:image" content="https://ghazali.app/icon-512.png">
   <link rel="stylesheet" href="ghazali.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 </head>
@@ -237,8 +247,8 @@ document.getElementById('share-btn').addEventListener('click', () => {
   span.textContent = 'COPIÉ ✓';
   setTimeout(() => { span.textContent = original; }, 2000);
 
-  // Copy a shareable text
-  const text = `۞ الزمر — Az-Zumar 39:10\n\nإِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ\n\nLes endurants auront leur pleine récompense sans compter.\n\n— Ghazali`;
+  // Copy shareable text (dynamic or fallback)
+  const text = window._shareText || `۞ الزمر — Az-Zumar 39:10\n\nإِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ\n\nLes endurants auront leur pleine récompense sans compter.\n\n— Ghazali`;
   navigator.clipboard.writeText(text).catch(() => {});
 });
 
@@ -366,6 +376,69 @@ async function initAuthSession() {
 }
 
 initAuthSession();
+
+// ========================================
+// DYNAMIC DAILY CONTENT
+// ========================================
+
+function getDayOfYear() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+async function loadDailyContent() {
+  try {
+    const res = await fetch('/data/daily-content.json');
+    if (!res.ok) return;
+    const days = await res.json();
+    if (!days.length) return;
+
+    const dayIndex = getDayOfYear() % days.length;
+    const day = days[dayIndex];
+
+    // Get user gender from localStorage
+    let gender = 'f';
+    try {
+      const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
+      if (user.gender) gender = user.gender;
+    } catch (e) {}
+
+    // Populate DOM
+    const $ = (sel) => document.querySelector(sel);
+    if ($('.ayah-sourah-ar')) $('.ayah-sourah-ar').textContent = day.surah_ar;
+    if ($('.ayah-sourah-latin')) $('.ayah-sourah-latin').textContent = day.surah_latin;
+    if ($('.home-ayah-arabic')) $('.home-ayah-arabic').textContent = day.ayah_ar;
+    if ($('.home-ayah-french')) $('.home-ayah-french').textContent = day.ayah_fr;
+    if ($('.home-paragraph')) {
+      $('.home-paragraph').textContent = gender === 'm' ? day.paragraphe_m : day.paragraphe_f;
+    }
+
+    // Niyyah items
+    const niyyahItems = document.querySelectorAll('.home-niyyah-item');
+    day.niyyah.forEach((val, i) => { if (niyyahItems[i]) niyyahItems[i].textContent = val; });
+
+    // Tanbih items
+    const tanbihItems = document.querySelectorAll('.home-tanbih-item');
+    day.tanbih.forEach((val, i) => { if (tanbihItems[i]) tanbihItems[i].textContent = val; });
+
+    // Update share text
+    window._shareText = `۞ ${day.surah_ar} — ${day.surah_latin}\n\n${day.ayah_ar}\n\n${day.ayah_fr}\n\n— Ghazali`;
+  } catch (e) {
+    console.error('Failed to load daily content:', e);
+    // Hardcoded HTML stays as fallback
+  }
+}
+
+loadDailyContent();
+
+// ========================================
+// SERVICE WORKER
+// ========================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
 </script>
 
 </body>

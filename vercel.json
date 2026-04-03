@@ -43,7 +43,14 @@
       ]
     },
     {
-      "source": "/(favicon.ico|icon.svg|icon-192.png|icon-512.png|apple-touch-icon.png|poster.jpg)",
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/(favicon.ico|icon.svg|icon-192.png|icon-512.png|apple-touch-icon.png)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=2592000" }
       ]

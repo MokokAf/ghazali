@@ -7,6 +7,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>GHAZALI · الغزالي</title>
+  <meta property="og:title" content="Ghazali — Miroir de ton âme">
+  <meta property="og:description" content="Un compagnon spirituel islamique. Chaque jour, une lecture coranique personnalisée.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ghazali.app">
+  <meta property="og:image" content="https://ghazali.app/icon-512.png">
+  <meta property="og:locale" content="fr_FR">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ghazali — Miroir de ton âme">
+  <meta name="twitter:description" content="Un compagnon spirituel islamique. Chaque jour, une lecture coranique personnalisée.">
+  <meta name="twitter:image" content="https://ghazali.app/icon-512.png">
   <link rel="stylesheet" href="ghazali.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 </head>
@@ -50,7 +60,7 @@
         <button class="btn-primary" onclick="goScreen(2)">
           <span>COMMENCER</span>
         </button>
-        <button class="btn-ghost" onclick="goScreen(10)">
+        <button class="btn-ghost" onclick="goScreen(3)">
           <span>J'AI DÉJÀ UN COMPTE</span>
         </button>
       </div>
@@ -60,153 +70,15 @@
     <div class="onboarding-screen" data-screen="2">
       <p class="ob-gold-intro">Dans la tradition islamique, ton prénom porte une intention.</p>
       <div class="ob-question">COMMENT TU T'APPELLES ?</div>
-      <input type="text" class="ob-input" id="ob-name" placeholder="Ton prénom">
+      <input type="text" class="ob-input" id="ob-name" placeholder="Ton prénom" autocomplete="given-name">
       <div class="ob-privacy" style="margin-top:16px;">Nous ne partagerons jamais tes données.</div>
-      <button class="btn-continue" onclick="goScreen(3)" style="margin-top:auto;">
+      <button class="btn-continue" onclick="saveName()" style="margin-top:auto;">
         <span>CONTINUER</span>
       </button>
     </div>
 
-    <!-- ===== SCREEN 3: PARENTS ===== -->
+    <!-- ===== SCREEN 3: SIGN UP ===== -->
     <div class="onboarding-screen" data-screen="3">
-      <p class="ob-gold-intro">Tu es fille de ton père et de ta mère. Leurs noms font partie de qui tu es.</p>
-      <div class="ob-question">LES PRÉNOMS DE TES PARENTS</div>
-      <div class="ob-input-label">PÈRE</div>
-      <input type="text" class="ob-input" id="ob-father" placeholder="Prénom du père">
-      <div class="ob-input-label">MÈRE</div>
-      <input type="text" class="ob-input" id="ob-mother" placeholder="Prénom de la mère">
-      <button class="btn-continue" onclick="goScreen(4)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 4: DATE OF BIRTH ===== -->
-    <div class="onboarding-screen" data-screen="4">
-      <div class="ob-question">DATE DE NAISSANCE</div>
-      <div class="ob-date-picker">
-        <div class="ob-date-col" id="ob-day-col"></div>
-        <div class="ob-date-col" id="ob-month-col"></div>
-        <div class="ob-date-col" id="ob-year-col"></div>
-      </div>
-      <button class="btn-continue" onclick="goScreen(5)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 5: HIJRI REVEAL ===== -->
-    <div class="onboarding-screen" data-screen="5">
-      <div class="ob-hijri-reveal" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-        <div class="ob-hijri-label">TU ES NÉE LE</div>
-        <div class="ob-hijri-date" id="ob-hijri-display">١٥ رمضان ١٤١٢</div>
-        <div class="ob-hijri-latin" id="ob-hijri-latin">15 RAMADAN 1412</div>
-        <p class="ob-hijri-note">Le mois de Ramadan est celui au cours duquel le Coran a été descendu. Un mois béni pour une naissance bénie.</p>
-      </div>
-      <button class="btn-continue" onclick="goScreen(6)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 6: LIFE SITUATION ===== -->
-    <div class="onboarding-screen" data-screen="6">
-      <div class="ob-question">OÙ EN ES-TU ?</div>
-      <div class="ob-privacy mb-20">Pas de jugement. Juste du contexte.</div>
-      <div class="ob-pills">
-        <button class="ob-pill" data-value="celibataire" onclick="selectPill(this)"><span>Célibataire</span></button>
-        <button class="ob-pill" data-value="couple" onclick="selectPill(this)"><span>En couple</span></button>
-        <button class="ob-pill" data-value="mariee" onclick="selectPill(this)"><span>Mariée</span></button>
-        <button class="ob-pill" data-value="mere" onclick="selectPill(this)"><span>Mère</span></button>
-        <button class="ob-pill" data-value="divorcee" onclick="selectPill(this)"><span>Divorcée</span></button>
-      </div>
-      <button class="btn-continue" onclick="goScreen(7)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 7: NAFS SELECTION ===== -->
-    <div class="onboarding-screen" data-screen="7">
-      <p class="ob-gold-intro">Ton âme traverse trois états. Tu les reconnaîtras.</p>
-      <div class="ob-nafs-cards">
-        <button class="ob-nafs-card" data-value="ammara" onclick="selectNafsCard(this)">
-          <div class="ob-nafs-card-header">
-            <span class="ob-nafs-card-ar">أمّارة</span>
-            <span class="ob-nafs-card-latin">AMMARA</span>
-          </div>
-          <div class="ob-nafs-card-desc">Quand tes impulsions prennent le dessus.</div>
-        </button>
-        <button class="ob-nafs-card" data-value="lawwama" onclick="selectNafsCard(this)">
-          <div class="ob-nafs-card-header">
-            <span class="ob-nafs-card-ar">لوّامة</span>
-            <span class="ob-nafs-card-latin">LAWWAMA</span>
-          </div>
-          <div class="ob-nafs-card-desc">Quand tu vois tes erreurs et que ça tourne en boucle.</div>
-        </button>
-        <button class="ob-nafs-card" data-value="mutmainna" onclick="selectNafsCard(this)">
-          <div class="ob-nafs-card-header">
-            <span class="ob-nafs-card-ar">مطمئنّة</span>
-            <span class="ob-nafs-card-latin">MUTMA'INNA</span>
-          </div>
-          <div class="ob-nafs-card-desc">Quand tu es en paix avec toi-même et avec Allah.</div>
-        </button>
-      </div>
-      <button class="btn-continue" onclick="goScreen(8)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 8: LOADING ===== -->
-    <div class="onboarding-screen" data-screen="8">
-      <div class="ob-loading">
-        <div class="ob-loading-ar">هَـٰذَا بَصَائِرُ لِلنَّاسِ</div>
-        <div class="ob-loading-fr">Voici des clairvoyances pour les gens.</div>
-        <div class="ob-loading-ref">Al-Jathiya · 45:20</div>
-        <div class="ob-loading-bar"></div>
-      </div>
-    </div>
-
-    <!-- ===== SCREEN 9: PROFILE REVEAL ===== -->
-    <div class="onboarding-screen" data-screen="9">
-      <div class="ob-reveal">
-        <div class="ob-reveal-name-ar" id="reveal-name-ar">سارة</div>
-        <div class="ob-reveal-name-latin" id="reveal-name-latin">SARAH</div>
-        <div class="ob-reveal-meaning" id="reveal-meaning">Celle qui apporte la joie, la princesse</div>
-
-        <div class="divider mb-24 mt-20"></div>
-
-        <div class="profil-section-label" style="text-align:left;">PARENTS</div>
-        <div class="profil-parents mb-24">
-          <div class="profil-parent">
-            <div class="profil-parent-label">PÈRE</div>
-            <div class="profil-parent-ar" id="reveal-father-ar">يوسف</div>
-            <div class="profil-parent-latin" id="reveal-father-latin">YOUSSEF</div>
-            <div class="profil-parent-resonance" id="reveal-father-res">Le prophète des rêves</div>
-          </div>
-          <div class="profil-parent">
-            <div class="profil-parent-label">MÈRE</div>
-            <div class="profil-parent-ar" id="reveal-mother-ar">خديجة</div>
-            <div class="profil-parent-latin" id="reveal-mother-latin">KHADIJA</div>
-            <div class="profil-parent-resonance" id="reveal-mother-res">Celle qui a cru la première</div>
-          </div>
-        </div>
-
-        <div class="profil-hijri mb-24" style="text-align:left;">
-          <div class="profil-hijri-ar" id="reveal-hijri-ar">١٥ رمضان ١٤١٢</div>
-          <div class="profil-hijri-latin" id="reveal-hijri-latin">15 RAMADAN 1412</div>
-        </div>
-
-        <div class="profil-nafs-box mb-24">
-          <div class="profil-nafs-ar" id="reveal-nafs-ar">لوّامة</div>
-          <div class="profil-nafs-latin" id="reveal-nafs-latin">LAWWAMA</div>
-        </div>
-
-        <p class="ob-reveal-closing" id="reveal-closing">Sarah, fille de Youssef et Khadija, née un jour de Ramadan. Ton âme est en état de lawwama — elle se cherche. Ghazali est ton miroir.</p>
-      </div>
-      <button class="btn-continue" onclick="goScreen(10)" style="margin-top:auto;">
-        <span>CONTINUER</span>
-      </button>
-    </div>
-
-    <!-- ===== SCREEN 10: SIGN UP ===== -->
-    <div class="onboarding-screen" data-screen="10">
       <div class="ob-question">SAUVEGARDE TON PROFIL</div>
       <p class="ob-tagline mb-32" style="text-align:left; font-size:14px;">Retrouve ta lecture chaque jour.</p>
 
@@ -228,7 +100,7 @@
 
       <!-- Email form (hidden by default) -->
       <div id="email-form" style="display:none;">
-        <input type="email" id="email-input" class="ob-input" placeholder="ton.email@exemple.com" autocomplete="email" />
+        <input type="email" id="email-input" class="ob-input" placeholder="ton.email@exemple.com" autocomplete="email">
         <button class="btn-primary" id="btn-email-submit" style="margin-top:12px; width:100%;">
           <span>ENVOYER LE LIEN MAGIQUE</span>
         </button>
@@ -237,7 +109,7 @@
         </button>
       </div>
 
-      <!-- Email sent confirmation (hidden by default) -->
+      <!-- Email sent confirmation -->
       <div id="email-sent" style="display:none; text-align:center;">
         <p style="font-family:var(--font-serif); font-size:16px; color:var(--gold-glow); margin-bottom:8px;">Lien envoyé.</p>
         <p style="font-family:var(--font-serif); font-size:14px; color:var(--indigo-secondary);">Vérifie ta boîte mail et clique sur le lien pour continuer.</p>
@@ -246,7 +118,7 @@
         </button>
       </div>
 
-      <!-- Auth error message -->
+      <!-- Auth error -->
       <div id="auth-error" style="display:none; text-align:center; margin-top:12px;">
         <p style="font-family:var(--font-serif); font-size:13px; color:#e74c3c;"></p>
       </div>
@@ -254,47 +126,98 @@
       <div class="ob-trust">Tes données ne seront jamais partagées ni vendues. 10% de nos revenus sont reversés en sadaqa.</div>
 
       <div style="text-align:center; margin-top:20px;">
-        <button class="btn-ghost" onclick="goScreen(11)">
+        <button class="btn-ghost" onclick="goScreen(4)">
           <span>PASSER POUR L'INSTANT</span>
         </button>
       </div>
     </div>
 
-    <!-- ===== SCREEN 11: NOTIFICATIONS ===== -->
-    <div class="onboarding-screen" data-screen="11">
+    <!-- ===== SCREEN 4: DOWNLOAD APP + NOTIFICATIONS ===== -->
+    <div class="onboarding-screen" data-screen="4">
       <div style="margin-bottom:24px;">
         <h2 style="font-family:var(--font-serif); font-size:22px; font-weight:300; color:var(--gold-glow); line-height:1.35;">Reçois ta clairvoyance chaque matin.</h2>
         <p style="font-family:var(--font-serif); font-size:14px; font-weight:300; color:var(--indigo-secondary); margin-top:8px;">Une lecture par jour. Pas de spam.</p>
       </div>
 
+      <!-- Mock notifications -->
       <div class="ob-notif-stack">
         <div class="ob-notif">
           <div class="ob-notif-header">
-            <span class="ob-notif-brand">GHAZALI</span>
+            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
             <span class="ob-notif-time">08:12</span>
           </div>
           <div class="ob-notif-text">Tu cours après ce qui te consume. Choisis ton nafs.</div>
         </div>
         <div class="ob-notif dim">
           <div class="ob-notif-header">
-            <span class="ob-notif-brand">GHAZALI</span>
+            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
             <span class="ob-notif-time">Hier</span>
           </div>
           <div class="ob-notif-text">Ton cœur est apaisé. Habite cette sérénité.</div>
         </div>
         <div class="ob-notif dim">
           <div class="ob-notif-header">
-            <span class="ob-notif-brand">GHAZALI</span>
+            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
             <span class="ob-notif-time">Mar 29</span>
           </div>
           <div class="ob-notif-text">L'âme lawwama est une étape sacrée.</div>
         </div>
       </div>
 
-      <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px; align-items:center;">
-        <button class="btn-primary" onclick="finishOnboarding()">
+      <!-- Platform selection -->
+      <div class="ob-platform-select" id="platform-select">
+        <button class="ob-platform-btn" id="btn-iphone" onclick="selectPlatform('iphone')">
+          <span>IPHONE</span>
+        </button>
+        <button class="ob-platform-btn" id="btn-android" onclick="selectPlatform('android')">
+          <span>ANDROID</span>
+        </button>
+      </div>
+
+      <!-- Android flow -->
+      <div class="ob-flow-container" id="flow-android">
+        <button class="btn-primary" id="btn-install-pwa" style="width:100%; margin-bottom:12px;">
+          <span>INSTALLER L'APP</span>
+        </button>
+        <div class="ob-install-fallback" id="android-fallback" style="display:none;">
+          Ouvre cette page dans Chrome pour installer l'app.
+        </div>
+        <button class="btn-primary" id="btn-android-notif" style="width:100%; display:none;">
           <span>ACTIVER LES NOTIFICATIONS</span>
         </button>
+      </div>
+
+      <!-- iPhone flow -->
+      <div class="ob-flow-container" id="flow-iphone">
+        <div class="ob-ios-steps">
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">1</div>
+            <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">2</div>
+            <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">3</div>
+            <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
+          </div>
+        </div>
+        <p style="font-family:var(--font-serif); font-size:13px; font-weight:300; font-style:italic; color:var(--indigo-secondary); margin-bottom:16px;">
+          Ensuite, ouvre Ghazali depuis ton écran d'accueil pour activer les notifications.
+        </p>
+        <button class="btn-primary" id="btn-ios-added" style="width:100%; margin-bottom:8px;">
+          <span>J'AI AJOUTÉ L'APP</span>
+        </button>
+        <div class="ob-ios-reminder" id="ios-reminder" style="display:none;">
+          Ouvre Ghazali depuis ton écran d'accueil pour continuer.
+        </div>
+        <button class="btn-ghost" id="btn-ios-skip" style="display:none;">
+          <span>CONTINUER QUAND MÊME</span>
+        </button>
+      </div>
+
+      <div style="text-align:center; margin-top:auto; padding-top:20px;">
         <button class="btn-ghost" onclick="finishOnboarding()">
           <span>PAS MAINTENANT</span>
         </button>
@@ -306,41 +229,20 @@
 
 <script>
 // ========================================
-// GHAZALI — Onboarding Logic
+// GHAZALI — Onboarding Logic (4 screens)
 // ========================================
 
 let currentScreen = 1;
 
 function goScreen(n) {
-  // Hide current
   document.querySelector(`.onboarding-screen[data-screen="${currentScreen}"]`).classList.remove('active');
-  // Show next
   const next = document.querySelector(`.onboarding-screen[data-screen="${n}"]`);
   next.classList.add('active');
   currentScreen = n;
-
-  // Scroll to top
   document.querySelector('.onboarding-content').scrollTop = 0;
 
-  // Special: init date picker scroll when screen 4 becomes visible
-  if (n === 4 && window._initDatePickerScroll) {
-    requestAnimationFrame(() => window._initDatePickerScroll());
-  }
-
-  // Special: loading screen auto-advance
-  if (n === 8) {
-    setTimeout(() => goScreen(9), 3000);
-  }
-}
-
-function selectPill(el) {
-  el.closest('.ob-pills').querySelectorAll('.ob-pill').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-function selectNafsCard(el) {
-  el.closest('.ob-nafs-cards').querySelectorAll('.ob-nafs-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+  // Auto-detect platform when entering screen 4
+  if (n === 4) autoSelectPlatform();
 }
 
 function finishOnboarding() {
@@ -348,119 +250,123 @@ function finishOnboarding() {
   window.location.href = '/app';
 }
 
-// --- Scroll-wheel date picker ---
-function initDatePicker() {
-  const dayCol = document.getElementById('ob-day-col');
-  const monthCol = document.getElementById('ob-month-col');
-  const yearCol = document.getElementById('ob-year-col');
-  const ITEM_H = 44;
-  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+// ========================================
+// GENDER DETECTION
+// ========================================
 
-  function buildCol(col, items) {
-    // Top/bottom padding so first/last items can scroll to center
-    // We need padding equal to (container height / 2) - (item height / 2)
-    // Container is 200px, item is 44px => padding = 78px ≈ 2 spacers
-    const padCount = 2;
-    let html = '';
-    for (let p = 0; p < padCount; p++) {
-      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
-    }
-    items.forEach(item => {
-      html += `<div class="ob-date-item" data-value="${item.value}">${item.label}</div>`;
-    });
-    for (let p = 0; p < padCount; p++) {
-      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
-    }
-    col.innerHTML = html;
-  }
+const FEMALE_NAMES = new Set([
+  'sarah','sara','fatima','khadija','aisha','aicha','maryam','mariam','hafsa','zainab','zaynab',
+  'amina','aminata','yasmin','yasmina','leila','layla','nour','noura','hana','hanna','samira',
+  'salma','rania','rana','dina','dalila','farida','jamila','karima','latifa','malika','nabila',
+  'nadia','naima','najat','rachida','rabia','safia','sakina','sanaa','soraya','souad','wafa',
+  'zineb','asma','basma','chaima','dalia','dounia','fadila','ghita','habiba','halima','hanane',
+  'hasna','hayat','houda','ikram','ilham','iman','inès','ines','jihane','kaoutar','kenza',
+  'khaoula','lamia','loubna','maria','marwa','meriem','mina','mouna','nawal','nesrine','nora',
+  'oumaima','rajae','rim','rihab','sabah','safae','siham','soukaina','touria','widad','yousra',
+  'sophie','marie','emma','léa','chloé','camille','jade','louise','alice','juliette','charlotte',
+  'manon','inaya','lina','agathe','margaux','clara','anna','eva','mathilde','ambre','léonie',
+]);
 
-  // Populate
-  const days = [];
-  for (let i = 1; i <= 31; i++) days.push({ value: i, label: i });
-  buildCol(dayCol, days);
+const MALE_NAMES = new Set([
+  'mohammed','mohamed','muhammad','ahmad','ahmed','ali','omar','oussama','youssef','youssouf',
+  'ibrahim','ismail','hassan','hussein','hamza','bilal','khalid','karim','mustapha','mehdi',
+  'rachid','said','samir','tariq','walid','abdallah','abdelkader','abdel','amine','anass',
+  'ayoub','badr','chakib','driss','el','fouad','ghali','hicham','idriss','jalil','jamal',
+  'lahcen','mounir','nabil','nassim','nizar','othmane','reda','riad','soufiane','taha',
+  'yassine','yassir','zakaria','adam','adil','brahim','daoudi','faisal','farid','habib',
+  'ilias','imad','jawad','lotfi','malik','marwan','moussa','nadir','omar','rafik','sami',
+  'thomas','lucas','hugo','léo','louis','gabriel','raphaël','arthur','jules','adam',
+  'nathan','noah','ethan','paul','victor','alexandre','antoine','théo','maxime','pierre',
+]);
 
-  const monthItems = months.map((m, i) => ({ value: i + 1, label: m }));
-  buildCol(monthCol, monthItems);
-
-  const years = [];
-  for (let i = 2010; i >= 1950; i--) years.push({ value: i, label: i });
-  buildCol(yearCol, years);
-
-  // Highlight the item closest to center on scroll
-  function updateSelection(col) {
-    const colRect = col.getBoundingClientRect();
-    const centerY = colRect.top + colRect.height / 2;
-    let closest = null;
-    let closestDist = Infinity;
-    col.querySelectorAll('.ob-date-item:not(.ob-date-spacer)').forEach(item => {
-      const rect = item.getBoundingClientRect();
-      const itemCenter = rect.top + rect.height / 2;
-      const dist = Math.abs(itemCenter - centerY);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closest = item;
-      }
-    });
-    col.querySelectorAll('.ob-date-item').forEach(i => i.classList.remove('selected'));
-    if (closest) closest.classList.add('selected');
-  }
-
-  // Attach scroll listeners with debounce
-  function attachScroll(col) {
-    let scrollTimer;
-    col.addEventListener('scroll', () => {
-      updateSelection(col);
-      clearTimeout(scrollTimer);
-      // After scroll ends, snap precisely to nearest item
-      scrollTimer = setTimeout(() => {
-        const selected = col.querySelector('.ob-date-item.selected:not(.ob-date-spacer)');
-        if (selected) {
-          const colRect = col.getBoundingClientRect();
-          const itemRect = selected.getBoundingClientRect();
-          const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
-          col.scrollBy({ top: offset, behavior: 'smooth' });
-        }
-      }, 80);
-    }, { passive: true });
-
-    // Tap to scroll an item to center
-    col.addEventListener('click', (e) => {
-      const item = e.target.closest('.ob-date-item:not(.ob-date-spacer)');
-      if (!item) return;
-      const colRect = col.getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
-      const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
-      col.scrollBy({ top: offset, behavior: 'smooth' });
-    });
-  }
-
-  attachScroll(dayCol);
-  attachScroll(monthCol);
-  attachScroll(yearCol);
-
-  // Scroll to default values using scrollTop (no getBoundingClientRect needed)
-  function scrollToValue(col, value) {
-    const target = col.querySelector(`[data-value="${value}"]`);
-    if (!target) return;
-    // Calculate offset: target's position minus centering offset
-    // Each item is ITEM_H px. We want the target centered in the 200px container.
-    // Center offset = (containerHeight / 2) - (ITEM_H / 2)
-    const idx = Array.from(col.querySelectorAll('.ob-date-item')).indexOf(target);
-    col.scrollTop = idx * ITEM_H - (col.clientHeight / 2 - ITEM_H / 2);
-    updateSelection(col);
-  }
-
-  // Defer to when screen 4 becomes visible
-  window._initDatePickerScroll = function() {
-    scrollToValue(dayCol, 15);
-    scrollToValue(monthCol, 3);
-    scrollToValue(yearCol, 1992);
-  };
-  // Also try immediately in case screen is already visible
-  requestAnimationFrame(() => window._initDatePickerScroll());
+function detectGender(name) {
+  const n = name.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (FEMALE_NAMES.has(n)) return 'f';
+  if (MALE_NAMES.has(n)) return 'm';
+  // Heuristic: common feminine endings in French/Arabic
+  if (/[ae]$/.test(n) || /(ine|elle|ette|aine|ia|ah|ya)$/.test(n)) return 'f';
+  return 'f'; // default feminine (majority of target audience)
 }
 
-initDatePicker();
+function saveName() {
+  const nameInput = document.getElementById('ob-name');
+  const name = nameInput.value.trim();
+  if (!name) { nameInput.focus(); return; }
+  const gender = detectGender(name);
+  localStorage.setItem('ghazali_user', JSON.stringify({ name, gender }));
+  goScreen(3);
+}
+
+// ========================================
+// PWA INSTALL + NOTIFICATIONS
+// ========================================
+
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+function autoSelectPlatform() {
+  const ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    selectPlatform('iphone');
+  } else {
+    selectPlatform('android');
+  }
+}
+
+function selectPlatform(platform) {
+  // Toggle button states
+  document.getElementById('btn-iphone').classList.toggle('selected', platform === 'iphone');
+  document.getElementById('btn-android').classList.toggle('selected', platform === 'android');
+  // Toggle flow containers
+  document.getElementById('flow-iphone').classList.toggle('active', platform === 'iphone');
+  document.getElementById('flow-android').classList.toggle('active', platform === 'android');
+}
+
+// Android install
+document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) {
+    document.getElementById('android-fallback').style.display = 'block';
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  if (outcome === 'accepted') {
+    // Show notification button
+    document.getElementById('btn-install-pwa').style.display = 'none';
+    document.getElementById('btn-android-notif').style.display = 'block';
+  }
+});
+
+document.getElementById('btn-android-notif').addEventListener('click', () => {
+  requestNotifPermission();
+});
+
+// iPhone flow
+document.getElementById('btn-ios-added').addEventListener('click', () => {
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (isStandalone) {
+    requestNotifPermission();
+  } else {
+    document.getElementById('ios-reminder').style.display = 'block';
+    document.getElementById('btn-ios-skip').style.display = 'block';
+  }
+});
+
+document.getElementById('btn-ios-skip').addEventListener('click', () => {
+  requestNotifPermission();
+});
+
+async function requestNotifPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+  finishOnboarding();
+}
 
 // ========================================
 // AUTH — Supabase Google + Email
@@ -475,7 +381,7 @@ async function initAuth() {
     if (!window.supabase) return;
     supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-    // If user already has a session, skip onboarding → go to app
+    // If user already has a session or completed onboarding, skip → app
     const { data: { session } } = await supabase.auth.getSession();
     if (session || localStorage.getItem('ghazali_onboarded')) {
       window.location.replace('/app');
@@ -526,10 +432,7 @@ async function sendMagicLink() {
     options: { emailRedirectTo: window.location.origin + '/app' }
   });
 
-  if (error) {
-    showAuthError(error.message);
-    return;
-  }
+  if (error) { showAuthError(error.message); return; }
 
   document.getElementById('email-form').style.display = 'none';
   document.getElementById('email-sent').style.display = 'block';
@@ -546,7 +449,16 @@ document.getElementById('btn-email-retry').addEventListener('click', () => {
   document.getElementById('email-input').focus();
 });
 
-// Init auth on load
+// ========================================
+// INIT
+// ========================================
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// Init auth (checks session, may redirect)
 initAuth();
 </script>
 
