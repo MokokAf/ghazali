@@ -60,7 +60,7 @@
         <button class="btn-primary" onclick="goScreen(2)">
           <span>COMMENCER</span>
         </button>
-        <button class="btn-ghost" onclick="goScreen(3)">
+        <button class="btn-ghost" onclick="goScreen(7)">
           <span>J'AI DÉJÀ UN COMPTE</span>
         </button>
       </div>
@@ -77,8 +77,64 @@
       </button>
     </div>
 
-    <!-- ===== SCREEN 3: SIGN UP ===== -->
+    <!-- ===== SCREEN 3: PARENTS ===== -->
     <div class="onboarding-screen" data-screen="3">
+      <p class="ob-gold-intro">Tu es fille de ton père et de ta mère. Leurs noms font partie de qui tu es.</p>
+      <div class="ob-question">LES PRÉNOMS DE TES PARENTS</div>
+
+      <div class="ob-input-label" style="margin-top:24px;">PÈRE</div>
+      <input type="text" class="ob-input" id="ob-father" placeholder="Prénom du père" autocomplete="off">
+
+      <div class="ob-input-label" style="margin-top:24px;">MÈRE</div>
+      <input type="text" class="ob-input" id="ob-mother" placeholder="Prénom de la mère" autocomplete="off">
+
+      <button class="btn-continue" onclick="saveParents()" style="margin-top:auto;">
+        <span>CONTINUER</span>
+      </button>
+    </div>
+
+    <!-- ===== SCREEN 4: DATE OF BIRTH ===== -->
+    <div class="onboarding-screen" data-screen="4">
+      <div class="ob-question" style="padding-top:40px;">DATE DE NAISSANCE</div>
+
+      <div class="ob-date-picker" style="margin-top:24px;">
+        <div class="ob-date-col" id="ob-day-col"></div>
+        <div class="ob-date-col" id="ob-month-col"></div>
+        <div class="ob-date-col" id="ob-year-col"></div>
+      </div>
+
+      <button class="btn-continue" onclick="saveDateOfBirth()" style="margin-top:auto;">
+        <span>CONTINUER</span>
+      </button>
+    </div>
+
+    <!-- ===== SCREEN 5: HIJRI REVEAL ===== -->
+    <div class="onboarding-screen" data-screen="5">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div class="ob-hijri-reveal">
+          <div class="ob-hijri-label" id="hijri-label">TU ES NÉE LE</div>
+          <div class="ob-hijri-date" id="ob-hijri-display"></div>
+          <div class="ob-hijri-latin" id="ob-hijri-latin"></div>
+          <div class="ob-hijri-note" id="ob-hijri-note"></div>
+        </div>
+      </div>
+      <button class="btn-continue" onclick="goScreen(6)" style="margin-top:auto;">
+        <span>CONTINUER</span>
+      </button>
+    </div>
+
+    <!-- ===== SCREEN 6: LOADING ===== -->
+    <div class="onboarding-screen" data-screen="6">
+      <div class="ob-loading">
+        <div class="ob-loading-ar">هَـٰذَا بَصَائِرُ لِلنَّاسِ</div>
+        <div class="ob-loading-fr">Voici des clairvoyances pour les gens.</div>
+        <div class="ob-loading-ref">Al-Jathiya · 45:20</div>
+        <div class="ob-loading-bar"></div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 7: SIGN UP ===== -->
+    <div class="onboarding-screen" data-screen="7">
       <div class="ob-question">SAUVEGARDE TON PROFIL</div>
       <p class="ob-tagline mb-32" style="text-align:left; font-size:14px;">Retrouve ta lecture chaque jour.</p>
 
@@ -126,14 +182,14 @@
       <div class="ob-trust">Tes données ne seront jamais partagées ni vendues. 10% de nos revenus sont reversés en sadaqa.</div>
 
       <div style="text-align:center; margin-top:20px;">
-        <button class="btn-ghost" onclick="goScreen(4)">
+        <button class="btn-ghost" onclick="goScreen(8)">
           <span>PASSER POUR L'INSTANT</span>
         </button>
       </div>
     </div>
 
-    <!-- ===== SCREEN 4: DOWNLOAD APP + NOTIFICATIONS ===== -->
-    <div class="onboarding-screen" data-screen="4">
+    <!-- ===== SCREEN 8: DOWNLOAD APP + NOTIFICATIONS ===== -->
+    <div class="onboarding-screen" data-screen="8">
       <div style="margin-bottom:24px;">
         <h2 style="font-family:var(--font-serif); font-size:22px; font-weight:300; color:var(--gold-glow); line-height:1.35;">Reçois ta clairvoyance chaque matin.</h2>
         <p style="font-family:var(--font-serif); font-size:14px; font-weight:300; color:var(--indigo-secondary); margin-top:8px;">Une lecture par jour. Pas de spam.</p>
@@ -229,7 +285,7 @@
 
 <script>
 // ========================================
-// GHAZALI — Onboarding Logic (4 screens)
+// GHAZALI — Onboarding Logic (8 screens)
 // ========================================
 
 let currentScreen = 1;
@@ -241,8 +297,18 @@ function goScreen(n) {
   currentScreen = n;
   document.querySelector('.onboarding-content').scrollTop = 0;
 
-  // Auto-detect platform when entering screen 4
-  if (n === 4) autoSelectPlatform();
+  // Init date picker scroll when screen 4 becomes visible
+  if (n === 4 && window._initDatePickerScroll) {
+    requestAnimationFrame(() => window._initDatePickerScroll());
+  }
+
+  // Loading screen auto-advance after 3 seconds
+  if (n === 6) {
+    setTimeout(() => goScreen(7), 3000);
+  }
+
+  // Auto-detect platform when entering screen 8
+  if (n === 8) autoSelectPlatform();
 }
 
 function finishOnboarding() {
@@ -295,6 +361,209 @@ function saveName() {
   const gender = detectGender(name);
   localStorage.setItem('ghazali_user', JSON.stringify({ name, gender }));
   goScreen(3);
+}
+
+// ========================================
+// PARENTS
+// ========================================
+
+function saveParents() {
+  const father = document.getElementById('ob-father').value.trim();
+  const mother = document.getElementById('ob-mother').value.trim();
+  const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
+  user.father_name = father;
+  user.mother_name = mother;
+  localStorage.setItem('ghazali_user', JSON.stringify(user));
+  goScreen(4);
+}
+
+// ========================================
+// DATE OF BIRTH + DATE PICKER
+// ========================================
+
+function saveDateOfBirth() {
+  const dayCol = document.getElementById('ob-day-col');
+  const monthCol = document.getElementById('ob-month-col');
+  const yearCol = document.getElementById('ob-year-col');
+
+  const day = getSelectedValue(dayCol) || 15;
+  const month = getSelectedValue(monthCol) || 3;
+  const year = getSelectedValue(yearCol) || 1992;
+
+  const iso = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
+  user.date_of_birth = iso;
+  localStorage.setItem('ghazali_user', JSON.stringify(user));
+
+  // Compute and show hijri date
+  computeHijriReveal(year, month, day, user.gender || 'f');
+  goScreen(5);
+}
+
+function getSelectedValue(col) {
+  const sel = col.querySelector('.ob-date-item.selected:not(.ob-date-spacer)');
+  return sel ? parseInt(sel.dataset.value) : null;
+}
+
+function initDatePicker() {
+  const dayCol = document.getElementById('ob-day-col');
+  const monthCol = document.getElementById('ob-month-col');
+  const yearCol = document.getElementById('ob-year-col');
+  const ITEM_H = 44;
+  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  function buildCol(col, items) {
+    const padCount = 2;
+    let html = '';
+    for (let p = 0; p < padCount; p++) {
+      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
+    }
+    items.forEach(item => {
+      html += `<div class="ob-date-item" data-value="${item.value}">${item.label}</div>`;
+    });
+    for (let p = 0; p < padCount; p++) {
+      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
+    }
+    col.innerHTML = html;
+  }
+
+  const days = [];
+  for (let i = 1; i <= 31; i++) days.push({ value: i, label: i });
+  buildCol(dayCol, days);
+
+  const monthItems = months.map((m, i) => ({ value: i + 1, label: m }));
+  buildCol(monthCol, monthItems);
+
+  const years = [];
+  for (let i = 2010; i >= 1940; i--) years.push({ value: i, label: i });
+  buildCol(yearCol, years);
+
+  function updateSelection(col) {
+    const colRect = col.getBoundingClientRect();
+    const centerY = colRect.top + colRect.height / 2;
+    let closest = null;
+    let closestDist = Infinity;
+    col.querySelectorAll('.ob-date-item:not(.ob-date-spacer)').forEach(item => {
+      const rect = item.getBoundingClientRect();
+      const itemCenter = rect.top + rect.height / 2;
+      const dist = Math.abs(itemCenter - centerY);
+      if (dist < closestDist) { closestDist = dist; closest = item; }
+    });
+    col.querySelectorAll('.ob-date-item').forEach(i => i.classList.remove('selected'));
+    if (closest) closest.classList.add('selected');
+  }
+
+  function attachScroll(col) {
+    let scrollTimer;
+    col.addEventListener('scroll', () => {
+      updateSelection(col);
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const selected = col.querySelector('.ob-date-item.selected:not(.ob-date-spacer)');
+        if (selected) {
+          const colRect = col.getBoundingClientRect();
+          const itemRect = selected.getBoundingClientRect();
+          const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
+          col.scrollBy({ top: offset, behavior: 'smooth' });
+        }
+      }, 80);
+    }, { passive: true });
+
+    col.addEventListener('click', (e) => {
+      const item = e.target.closest('.ob-date-item:not(.ob-date-spacer)');
+      if (!item) return;
+      const colRect = col.getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
+      const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
+      col.scrollBy({ top: offset, behavior: 'smooth' });
+    });
+  }
+
+  attachScroll(dayCol);
+  attachScroll(monthCol);
+  attachScroll(yearCol);
+
+  function scrollToValue(col, value) {
+    const target = col.querySelector(`[data-value="${value}"]`);
+    if (!target) return;
+    const idx = Array.from(col.querySelectorAll('.ob-date-item')).indexOf(target);
+    col.scrollTop = idx * ITEM_H - (col.clientHeight / 2 - ITEM_H / 2);
+    updateSelection(col);
+  }
+
+  window._initDatePickerScroll = function() {
+    scrollToValue(dayCol, 15);
+    scrollToValue(monthCol, 3);
+    scrollToValue(yearCol, 1992);
+  };
+  requestAnimationFrame(() => window._initDatePickerScroll());
+}
+
+initDatePicker();
+
+// ========================================
+// HIJRI CONVERSION
+// ========================================
+
+const HIJRI_MONTHS_AR = ['محرّم','صفر','ربيع الأوّل','ربيع الثاني','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوّال','ذو القعدة','ذو الحجّة'];
+const HIJRI_MONTHS_LATIN = ['MUHARRAM','SAFAR','RABI AL-AWWAL','RABI ATH-THANI','JUMADA AL-ULA','JUMADA AL-AKHIRA','RAJAB','SHABAN','RAMADAN','SHAWWAL','DHU AL-QADA','DHU AL-HIJJA'];
+const HIJRI_MONTH_NOTES = [
+  "Le premier mois du calendrier islamique. Un mois sacré, où la paix intérieure est recherchée.",
+  "Le mois qui suit le sacré. Un temps de transition et de préparation.",
+  "Le mois du printemps. La vie commence à renaître, comme ton chemin spirituel.",
+  "Le second printemps. La patience porte ses fruits, lentement mais sûrement.",
+  "Le premier mois de l'aridité. Un rappel que même dans la sécheresse, la foi irrigue.",
+  "Le second mois de l'aridité. La persévérance dans le silence est une forme de prière.",
+  "Le mois sacré de Rajab. Un des quatre mois sacrés, prélude au voyage spirituel.",
+  "Le mois de la séparation. Le temps de se préparer pour ce qui vient.",
+  "Le mois de Ramadan est celui au cours duquel le Coran a été descendu. Un mois béni pour une naissance bénie.",
+  "Le mois de la rupture du jeûne. La récompense après l'effort, la joie après la patience.",
+  "Le mois du repos. Un temps de préparation avant le pèlerinage sacré.",
+  "Le mois du pèlerinage sacré. Le sommet du calendrier islamique, un mois de convergence."
+];
+
+function toArabicNumerals(n) {
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+// Simplified Gregorian → Hijri conversion (Kuwaiti algorithm)
+function gregorianToHijri(year, month, day) {
+  const d = new Date(year, month - 1, day);
+  const jd = Math.floor((d.getTime() / 86400000) + 2440587.5);
+
+  const l = jd - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const remainder = l - 10631 * n + 354;
+  const j = Math.floor((10985 - remainder) / 5316) * Math.floor((50 * remainder) / 17719) +
+            Math.floor(remainder / 5670) * Math.floor((43 * remainder) / 15238);
+  const remaining = remainder - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+                    Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+
+  const hMonth = Math.floor((24 * remaining) / 709);
+  const hDay = remaining - Math.floor((709 * hMonth) / 24);
+  const hYear = 30 * n + j - 30;
+
+  return { day: hDay, month: hMonth, year: hYear };
+}
+
+function computeHijriReveal(gYear, gMonth, gDay, gender) {
+  const h = gregorianToHijri(gYear, gMonth, gDay);
+  const monthIdx = Math.max(0, Math.min(11, h.month - 1));
+
+  const arabicDate = `${toArabicNumerals(h.day)} ${HIJRI_MONTHS_AR[monthIdx]} ${toArabicNumerals(h.year)}`;
+  const latinDate = `${h.day} ${HIJRI_MONTHS_LATIN[monthIdx]} ${h.year}`;
+
+  document.getElementById('ob-hijri-display').textContent = arabicDate;
+  document.getElementById('ob-hijri-latin').textContent = latinDate;
+  document.getElementById('ob-hijri-note').textContent = HIJRI_MONTH_NOTES[monthIdx];
+
+  // Update label gender
+  const label = document.getElementById('hijri-label');
+  if (gender === 'm') {
+    label.textContent = 'TU ES NÉ LE';
+  } else {
+    label.textContent = 'TU ES NÉE LE';
+  }
 }
 
 // ========================================

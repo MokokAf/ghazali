@@ -1149,7 +1149,16 @@ html, body {
   border-color: var(--gold);
 }
 
-/* .ob-input-label removed (parents screen) */
+.ob-input-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  margin-top: 20px;
+}
 
 .ob-privacy {
   font-family: var(--font-mono);
@@ -1379,7 +1388,169 @@ html, body {
 
 /* --- end of new screen 4 styles --- */
 
-/* [Deleted: nafs cards, loading, reveal, date picker, hijri reveal — see git history] */
+/* Loading screen */
+.ob-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.ob-loading-ar {
+  font-family: var(--font-arabic);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.ob-loading-fr {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--indigo-secondary);
+  margin-bottom: 6px;
+}
+
+.ob-loading-ref {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+  color: var(--indigo-muted);
+  letter-spacing: 1px;
+  margin-bottom: 32px;
+}
+
+.ob-loading-bar {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  animation: pulse-bar 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-bar {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Date picker */
+.ob-date-picker {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.ob-date-picker::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 40px);
+  max-width: 320px;
+  height: 44px;
+  border-top: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+  background: rgba(232,198,93,0.08);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ob-date-picker::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    var(--indigo-ground) 0%,
+    transparent 30%,
+    transparent 70%,
+    var(--indigo-ground) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ob-date-col {
+  flex: 1;
+  max-width: 120px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: y mandatory;
+}
+
+.ob-date-col::-webkit-scrollbar {
+  display: none;
+}
+
+.ob-date-item {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--indigo-muted);
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: color 0.15s ease, font-size 0.15s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ob-date-item.selected {
+  font-size: 22px;
+  color: var(--vellum);
+}
+
+/* Hijri reveal */
+.ob-hijri-reveal {
+  text-align: center;
+}
+
+.ob-hijri-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+  color: var(--indigo-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.ob-hijri-date {
+  font-family: var(--font-arabic);
+  font-size: 42px;
+  font-weight: 400;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.ob-hijri-latin {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--indigo-secondary);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.ob-hijri-note {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--indigo-secondary);
+  line-height: 1.7;
+}
 
 
 /* Notification mocks — frosted glass */
