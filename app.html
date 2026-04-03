@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1A2D42">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GHAZALI · الغزالي</title>
+  <link rel="stylesheet" href="ghazali.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+</head>
+<body class="app-bg">
+
+<!-- SVG grain filter -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="3" seed="5"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.06"/></feComponentTransfer>
+    <feBlend in="SourceGraphic" mode="overlay"/>
+  </filter>
+</svg>
+<div class="grain-layer"></div>
+
+<div class="app-shell">
+
+  <!-- ========== SCROLLABLE CONTENT ========== -->
+  <main class="app-content">
+
+    <!-- ===== ACCUEIL TAB ===== -->
+    <div id="tab-accueil" class="tab-content active">
+      <div class="home-page">
+
+        <!-- Header -->
+        <div class="home-header">
+          <div class="brand-latin">GHAZALI</div>
+          <div class="home-dates">
+            <div class="date-hijri">٦ شوّال ١٤٤٧</div>
+            <div class="date-gregorian">3 AVR 2026</div>
+          </div>
+        </div>
+
+        <!-- Ayah section -->
+        <div class="home-ayah-section fade-in">
+
+          <!-- Surah reference -->
+          <div class="home-surah-ref">
+            <span class="ayah-marker">۞</span>
+            <span class="ayah-sourah-ar">الزمر</span>
+            <span class="ayah-sourah-latin">Az-Zumar 39:10</span>
+          </div>
+
+          <!-- Arabic ayah -->
+          <div class="home-ayah-arabic">
+            إِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ
+          </div>
+
+          <!-- French translation -->
+          <div class="home-ayah-french">
+            Les endurants auront leur pleine récompense sans compter.
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="section-break"></div>
+
+        <!-- Paragraph — the mirror -->
+        <div class="home-paragraph fade-in-delay">
+          Cette liste mentale de tout ce que tu fais pour eux, tu la connais par cœur. Les repas, les rendez-vous, les silences que tu avales pour garder la paix. Tu appelles ça de la patience mais c'est devenu un rôle — celle qui tient tout sans rien demander. Le problème c'est pas qu'ils ne voient pas. C'est que tu as arrêté de croire que c'était normal d'être vue.
+        </div>
+
+        <!-- Niyyah / Tanbih -->
+        <div class="home-columns fade-in-delay-2">
+          <div class="home-col">
+            <div class="home-col-label-row">
+              <span class="home-niyyah-label">NIYYAH</span>
+              <span class="home-col-sub">intention</span>
+            </div>
+            <div class="home-niyyah-item">Endurer</div>
+            <div class="home-niyyah-item">Faire confiance</div>
+            <div class="home-niyyah-item">Continuer</div>
+          </div>
+          <div class="home-col-divider"></div>
+          <div class="home-col">
+            <div class="home-col-label-row">
+              <span class="home-tanbih-label">TANBĪH</span>
+              <span class="home-col-sub">mise en garde</span>
+            </div>
+            <div class="home-tanbih-item">Comptabiliser</div>
+            <div class="home-tanbih-item">Reprocher</div>
+            <div class="home-tanbih-item">S'épuiser</div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="home-actions slide-up">
+          <button class="home-share-btn" id="share-btn">
+            <span>PARTAGER AVEC UN PROCHE →</span>
+          </button>
+          <button class="home-musharata-btn" id="musharata-btn">
+            <span>MUSHĀRATA →</span>
+          </button>
+          <div class="home-musharata-hint">Fais de cette lecture ton intention du jour</div>
+        </div>
+
+        <!-- Spacer before nav -->
+        <div style="height:80px;"></div>
+
+      </div>
+    </div>
+
+    <!-- ===== RECHERCHE TAB ===== -->
+    <div id="tab-recherche" class="tab-content">
+      <div class="reves-tab">
+        <div class="reves-header">
+          <div class="reves-title">RECHERCHE</div>
+          <p class="reves-subtitle">Raconte ton rêve. Laisse la tradition t'éclairer.</p>
+        </div>
+        <div class="dream-input-wrapper">
+          <textarea class="dream-input" id="dream-input" placeholder="J'ai rêvé que..." rows="5"></textarea>
+        </div>
+        <button class="dream-submit" id="dream-submit">
+          <span>INTERPRÉTER →</span>
+        </button>
+
+        <div class="dream-response" id="dream-response">
+          <div class="divider mb-20"></div>
+          <div class="dream-response-text" id="dream-response-text"></div>
+          <div class="dream-followups" id="dream-followups"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MUSHĀRATA TAB ===== -->
+    <div id="tab-musharata" class="tab-content">
+      <div class="ghazali-tab">
+        <div class="ghazali-title">الغزالي</div>
+        <div class="ghazali-latin">MUSHĀRATA</div>
+        <p class="ghazali-desc" id="ghazali-desc">Mushārata — le pacte du matin avec ton âme.</p>
+        <div class="ghazali-time" id="ghazali-time">MUSHĀRATA · MATIN</div>
+        <p class="ghazali-lock">Disponible avec l'abonnement.</p>
+        <button class="btn-subscribe">
+          <span>S'ABONNER →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== PROFIL TAB ===== -->
+    <div id="tab-profil" class="tab-content">
+      <div class="profil-tab">
+
+        <div class="profil-name-ar">سارة</div>
+        <div class="profil-name-latin">SARAH</div>
+
+        <div class="divider mb-28"></div>
+
+        <div class="profil-section-label">PARENTS</div>
+        <div class="profil-parents">
+          <div class="profil-parent">
+            <div class="profil-parent-label">PÈRE</div>
+            <div class="profil-parent-ar">يوسف</div>
+            <div class="profil-parent-latin">YOUSSEF</div>
+            <div class="profil-parent-resonance">Le prophète des rêves</div>
+          </div>
+          <div class="profil-parent">
+            <div class="profil-parent-label">MÈRE</div>
+            <div class="profil-parent-ar">خديجة</div>
+            <div class="profil-parent-latin">KHADIJA</div>
+            <div class="profil-parent-resonance">Celle qui a cru la première</div>
+          </div>
+        </div>
+
+        <div class="profil-section-label">DATE HIJRI</div>
+        <div class="profil-hijri mb-28">
+          <div class="profil-hijri-ar">١٥ رمضان ١٤١٢</div>
+          <div class="profil-hijri-latin">15 RAMADAN 1412</div>
+        </div>
+
+        <div class="profil-section-label">ÉTAT DE L'ÂME</div>
+        <div class="profil-nafs-box">
+          <div class="profil-nafs-ar">لوّامة</div>
+          <div class="profil-nafs-latin">LAWWAMA</div>
+        </div>
+
+        <div class="profil-settings">
+          <div class="profil-setting">
+            <span class="profil-setting-label">NOTIFICATIONS</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+          <div class="profil-setting">
+            <span class="profil-setting-label">ABONNEMENT</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+          <div class="profil-setting">
+            <span class="profil-setting-label">SE DÉCONNECTER</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========== BOTTOM NAV ========== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="accueil">ACCUEIL</button>
+    <button class="nav-item" data-tab="recherche">RECHERCHE</button>
+    <button class="nav-item" data-tab="musharata">MUSHĀRATA</button>
+    <button class="nav-item" data-tab="profil">PROFIL</button>
+  </nav>
+
+</div>
+
+<script>
+// ========================================
+// GHAZALI — App Logic
+// ========================================
+
+// --- Tab Navigation ---
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    document.querySelector('.app-content').scrollTop = 0;
+  });
+});
+
+// --- Share button ---
+document.getElementById('share-btn').addEventListener('click', () => {
+  const btn = document.getElementById('share-btn');
+  const span = btn.querySelector('span');
+  const original = span.textContent;
+  span.textContent = 'COPIÉ ✓';
+  setTimeout(() => { span.textContent = original; }, 2000);
+
+  // Copy a shareable text
+  const text = `۞ الزمر — Az-Zumar 39:10\n\nإِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ\n\nLes endurants auront leur pleine récompense sans compter.\n\n— Ghazali`;
+  navigator.clipboard.writeText(text).catch(() => {});
+});
+
+// --- Musharata time-aware ---
+function updateMusharata() {
+  const hour = new Date().getHours();
+  const descEl = document.getElementById('ghazali-desc');
+  const timeEl = document.getElementById('ghazali-time');
+  if (hour < 14) {
+    descEl.textContent = "Mushārata — le pacte du matin avec ton âme.";
+    timeEl.textContent = "MUSHĀRATA · MATIN";
+  } else {
+    descEl.textContent = "Muḥāsaba — le bilan du soir de ton âme.";
+    timeEl.textContent = "MUḤĀSABA · SOIR";
+  }
+}
+updateMusharata();
+
+// --- Dream input ---
+document.getElementById('dream-submit').addEventListener('click', () => {
+  const input = document.getElementById('dream-input').value.trim();
+  if (!input) return;
+  document.getElementById('dream-response-text').textContent = "L'interprétation de ton rêve sera disponible prochainement. En attendant, sache que dans la tradition d'Ibn Sirin, chaque rêve est un miroir de l'état de l'âme.";
+  document.getElementById('dream-followups').innerHTML = [
+    "Que signifie l'eau dans les rêves ?",
+    "Quel lien entre mon rêve et mon nafs ?",
+    "Ibn Sirin a-t-il interprété des rêves similaires ?"
+  ].map(q => `<button class="dream-followup"><span>${q}</span></button>`).join('');
+  document.getElementById('dream-response').classList.add('visible');
+});
+
+// ========================================
+// AUTH — Supabase Session Management
+// ========================================
+let sbClient = null;
+let accessToken = null;
+
+function getAnonId() {
+  let id = localStorage.getItem('ghazali_anon_id');
+  if (!id) {
+    id = 'anon_' + crypto.randomUUID();
+    localStorage.setItem('ghazali_anon_id', id);
+  }
+  return id;
+}
+
+function authHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (accessToken) {
+    headers['Authorization'] = 'Bearer ' + accessToken;
+  } else {
+    headers['X-Anon-Id'] = getAnonId();
+  }
+  return headers;
+}
+
+function updateProfileUI(user) {
+  const settingsEl = document.querySelector('.profil-settings');
+  if (!settingsEl) return;
+
+  settingsEl.querySelectorAll('.profil-setting').forEach(el => {
+    const label = el.querySelector('.profil-setting-label');
+    if (label && label.textContent.includes('CONNECTER')) {
+      if (user) {
+        label.textContent = 'SE DÉCONNECTER';
+        el.onclick = async () => {
+          await sbClient.auth.signOut();
+          accessToken = null;
+          window.location.href = '/onboarding';
+        };
+      } else {
+        label.textContent = 'SE CONNECTER';
+        el.onclick = () => { window.location.href = '/onboarding'; };
+      }
+    }
+  });
+}
+
+async function migrateAnon() {
+  const anonId = localStorage.getItem('ghazali_anon_id');
+  if (!anonId || !accessToken) return;
+  try {
+    await fetch('/api/migrate-anon', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ anon_id: anonId }),
+    });
+    localStorage.removeItem('ghazali_anon_id');
+  } catch (e) {
+    console.error('Anon migration failed:', e);
+  }
+}
+
+async function initAuthSession() {
+  try {
+    const res = await fetch('/api/config');
+    if (!res.ok) return;
+    const { supabaseUrl, supabaseAnonKey } = await res.json();
+    if (!window.supabase) return;
+    sbClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session) {
+      accessToken = session.access_token;
+      updateProfileUI(session.user);
+      migrateAnon();
+    } else {
+      updateProfileUI(null);
+    }
+
+    sbClient.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        accessToken = session.access_token;
+        updateProfileUI(session.user);
+        if (event === 'SIGNED_IN') migrateAnon();
+      } else {
+        accessToken = null;
+        updateProfileUI(null);
+      }
+    });
+  } catch (e) {
+    console.error('Auth init failed:', e);
+    updateProfileUI(null);
+  }
+}
+
+initAuthSession();
+</script>
+
+</body>
+</html>

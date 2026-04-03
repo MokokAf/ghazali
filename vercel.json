@@ -20,7 +20,12 @@
     }
   },
   "rewrites": [
-    { "source": "/chat", "destination": "/chat.html" }
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/onboarding", "destination": "/onboarding.html" }
+  ],
+  "redirects": [
+    { "source": "/chat", "destination": "/app", "permanent": true },
+    { "source": "/", "destination": "/onboarding", "permanent": false }
   ],
   "headers": [
     {

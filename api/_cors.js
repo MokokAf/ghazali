@@ -1,7 +1,7 @@
 // Shared CORS handling for all API endpoints
 const ALLOWED_ORIGINS = [
-  'https://almanami.com',
-  'https://www.almanami.com',
+  'https://ghazali.com',
+  'https://www.ghazali.com',
   'http://localhost:8080',
   'http://localhost:3000',
 ];

@@ -1,8 +1,8 @@
 {
-  "name": "Al Manami — Interprétation islamique des rêves",
-  "short_name": "Al Manami",
+  "name": "Ghazali — Interprétation islamique des rêves",
+  "short_name": "Ghazali",
   "description": "Interprétation de vos rêves selon la tradition islamique d'Ibn Sirin, Al-Nabulsi et Ibn Shahin.",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

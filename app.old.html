@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1A2D42">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>GHAZALI · الغزالي</title>
+  <link rel="stylesheet" href="ghazali.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body class="app-bg">
+
+<!-- SVG grain filter -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="3" seed="5"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.06"/></feComponentTransfer>
+    <feBlend in="SourceGraphic" mode="overlay"/>
+  </filter>
+</svg>
+<div class="grain-layer"></div>
+
+<div class="app-shell">
+
+  <!-- ========== HEADER ========== -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-latin">GHAZALI</span>
+      <span class="brand-arabic">بصائر</span>
+    </div>
+  </header>
+
+  <!-- ========== SCROLLABLE CONTENT ========== -->
+  <main class="app-content">
+
+    <!-- ===== ACCUEIL TAB ===== -->
+    <div id="tab-accueil" class="tab-content active">
+
+      <!-- Dates -->
+      <div class="dates">
+        <div class="date-hijri">٦ شوّال ١٤٤٧</div>
+        <div class="date-gregorian">31 MARS 2026</div>
+      </div>
+
+      <!-- Nafs Selector -->
+      <div class="nafs-selector">
+        <div class="nafs-option" data-nafs="ammara">
+          <span class="nafs-arabic">أمّارة</span>
+          <span class="nafs-latin">AMMARA</span>
+        </div>
+        <div class="nafs-divider"></div>
+        <div class="nafs-option" data-nafs="lawwama">
+          <span class="nafs-arabic">لوّامة</span>
+          <span class="nafs-latin">LAWWAMA</span>
+        </div>
+        <div class="nafs-divider"></div>
+        <div class="nafs-option" data-nafs="mutmainna">
+          <span class="nafs-arabic">مطمئنّة</span>
+          <span class="nafs-latin">MUTMA'INNA</span>
+        </div>
+      </div>
+
+      <!-- Nafs content (hidden until selection) -->
+      <div id="nafs-content" style="display:none;">
+
+        <div class="divider"></div>
+
+        <!-- Daily Statement -->
+        <div class="daily-statement">
+          <h2 class="daily-headline" id="daily-headline"></h2>
+          <p class="daily-body" id="daily-body"></p>
+        </div>
+
+        <!-- Niyyah / Tanbih -->
+        <div class="niyyah-tanbih">
+          <div class="niyyah-col">
+            <div class="nt-label">NIYYAH</div>
+            <div class="nt-sublabel">intention</div>
+            <div class="nt-items" id="niyyah-items"></div>
+          </div>
+          <div class="tanbih-col">
+            <div class="nt-label">TANBĪH</div>
+            <div class="nt-sublabel">mise en garde</div>
+            <div class="nt-items" id="tanbih-items"></div>
+          </div>
+        </div>
+
+        <!-- Approfondir -->
+        <button class="btn-approfondir">
+          <span>APPROFONDIR →</span>
+        </button>
+
+        <!-- Section Break -->
+        <div class="section-break"></div>
+
+        <!-- Ayah Sections -->
+        <div id="ayah-sections"></div>
+
+      </div>
+
+      <!-- Empty state (before nafs selection) -->
+      <div id="nafs-empty" class="daily-statement" style="text-align:center; padding-top:60px;">
+        <p class="daily-body" style="color:var(--indigo-secondary);">Choisis ton état d'âme pour aujourd'hui.</p>
+      </div>
+
+    </div>
+
+    <!-- ===== REVES TAB ===== -->
+    <div id="tab-reves" class="tab-content">
+      <div class="reves-tab">
+        <div class="reves-header">
+          <div class="reves-title">RÊVES</div>
+          <p class="reves-subtitle">Raconte ton rêve. Laisse la tradition t'éclairer.</p>
+        </div>
+        <div class="dream-input-wrapper">
+          <textarea class="dream-input" id="dream-input" placeholder="J'ai rêvé que..." rows="5"></textarea>
+        </div>
+        <button class="dream-submit" id="dream-submit">
+          <span>INTERPRÉTER →</span>
+        </button>
+
+        <div class="dream-response" id="dream-response">
+          <div class="divider mb-20"></div>
+          <div class="dream-response-text" id="dream-response-text"></div>
+          <div class="dream-followups" id="dream-followups"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GHAZALI TAB ===== -->
+    <div id="tab-ghazali" class="tab-content">
+      <div class="ghazali-tab">
+        <div class="ghazali-title">الغزالي</div>
+        <div class="ghazali-latin">GHAZALI</div>
+        <p class="ghazali-desc" id="ghazali-desc">Mushārata — le pacte du matin avec ton âme.</p>
+        <div class="ghazali-time" id="ghazali-time">MUSHĀRATA · MATIN</div>
+        <p class="ghazali-lock">Disponible avec l'abonnement.</p>
+        <button class="btn-subscribe">
+          <span>S'ABONNER →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== PROFIL TAB ===== -->
+    <div id="tab-profil" class="tab-content">
+      <div class="profil-tab">
+
+        <div class="profil-name-ar">سارة</div>
+        <div class="profil-name-latin">SARAH</div>
+
+        <div class="divider mb-28"></div>
+
+        <div class="profil-section-label">PARENTS</div>
+        <div class="profil-parents">
+          <div class="profil-parent">
+            <div class="profil-parent-label">PÈRE</div>
+            <div class="profil-parent-ar">يوسف</div>
+            <div class="profil-parent-latin">YOUSSEF</div>
+            <div class="profil-parent-resonance">Le prophète des rêves</div>
+          </div>
+          <div class="profil-parent">
+            <div class="profil-parent-label">MÈRE</div>
+            <div class="profil-parent-ar">خديجة</div>
+            <div class="profil-parent-latin">KHADIJA</div>
+            <div class="profil-parent-resonance">Celle qui a cru la première</div>
+          </div>
+        </div>
+
+        <div class="profil-section-label">DATE HIJRI</div>
+        <div class="profil-hijri mb-28">
+          <div class="profil-hijri-ar">١٥ رمضان ١٤١٢</div>
+          <div class="profil-hijri-latin">15 RAMADAN 1412</div>
+        </div>
+
+        <div class="profil-section-label">ÉTAT DE L'ÂME</div>
+        <div class="profil-nafs-box">
+          <div class="profil-nafs-ar">لوّامة</div>
+          <div class="profil-nafs-latin">LAWWAMA</div>
+        </div>
+
+        <div class="profil-settings">
+          <div class="profil-setting">
+            <span class="profil-setting-label">NOTIFICATIONS</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+          <div class="profil-setting">
+            <span class="profil-setting-label">ABONNEMENT</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+          <div class="profil-setting">
+            <span class="profil-setting-label">SE DÉCONNECTER</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========== BOTTOM NAV ========== -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="accueil">ACCUEIL</button>
+    <button class="nav-item" data-tab="reves">RÊVES</button>
+    <button class="nav-item" data-tab="ghazali">GHAZALI</button>
+    <button class="nav-item" data-tab="profil">PROFIL</button>
+  </nav>
+
+</div>
+
+<script>
+// ========================================
+// GHAZALI — App Logic
+// ========================================
+
+// --- Content Data (sample) ---
+const nafsContent = {
+  ammara: {
+    headline: "Tu cours après ce qui te consume.",
+    body: "Aujourd'hui, ton âme cherche la satisfaction immédiate. Elle veut tout, maintenant. Chaque impulsion est un cri — écoute-le, mais ne le suis pas aveuglément. La première clairvoyance, c'est de voir l'impulsion pour ce qu'elle est.",
+    niyyah: ["Patience", "Retenue", "Écoute"],
+    tanbih: ["Précipitation", "Excès", "Déni"],
+    ayat: [
+      {
+        sourahAr: "سورة يوسف",
+        sourahLatin: "Yusuf · 12:53",
+        marker: "۞",
+        ar: "إِنَّ النَّفْسَ لَأَمَّارَةٌ بِالسُّوءِ إِلَّا مَا رَحِمَ رَبِّي",
+        transliteration: "inna n-nafsa la-ammāratun bi-s-sūʾi illā mā raḥima rabbī",
+        fr: "L'âme est certes encline au mal, sauf si mon Seigneur fait miséricorde.",
+        insight: "Cette ayah est le miroir de ton état. L'âme ammara n'est pas un ennemi — c'est une partie de toi qui demande à être guidée. La reconnaître, c'est déjà un acte de raḥma envers toi-même."
+      },
+      {
+        sourahAr: "سورة الشمس",
+        sourahLatin: "Ash-Shams · 91:7-8",
+        marker: "۞",
+        ar: "وَنَفْسٍ وَمَا سَوَّاهَا ﴿٧﴾ فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا",
+        transliteration: "wa nafsin wa mā sawwāhā, fa-alhamahā fujūrahā wa taqwāhā",
+        fr: "Par l'âme et Celui qui l'a façonnée, puis lui a inspiré son immoralité et sa piété.",
+        insight: "Ton âme contient les deux chemins. Le fujūr et la taqwa coexistent en toi. Aujourd'hui, choisis consciemment lequel tu nourris."
+      },
+      {
+        sourahAr: "سورة النازعات",
+        sourahLatin: "An-Nazi'at · 79:40-41",
+        marker: "۞",
+        ar: "وَأَمَّا مَنْ خَافَ مَقَامَ رَبِّهِ وَنَهَى النَّفْسَ عَنِ الْهَوَىٰ ﴿٤٠﴾ فَإِنَّ الْجَنَّةَ هِيَ الْمَأْوَىٰ",
+        transliteration: "wa ammā man khāfa maqāma rabbihi wa nahā n-nafsa ʿani l-hawā, fa-inna l-jannata hiya l-maʾwā",
+        fr: "Quant à celui qui aura craint la comparution devant son Seigneur et préservé son âme de la passion, le Paradis sera son refuge.",
+        insight: "Le hawā — le désir brut — est ce que l'ammara suit. Mais naha, le refus conscient, est ta clé aujourd'hui. Pas la suppression, mais le choix."
+      },
+      {
+        sourahAr: "سورة ق",
+        sourahLatin: "Qaf · 50:16",
+        marker: "۞",
+        ar: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ",
+        transliteration: "wa naḥnu aqrabu ilayhi min ḥabli l-warīd",
+        fr: "Nous sommes plus proche de lui que sa veine jugulaire.",
+        insight: "Dans ton agitation, rappelle-toi cette proximité. Allah n'est pas loin de l'ammara — Il est plus proche de toi que ton propre pouls."
+      }
+    ]
+  },
+  lawwama: {
+    headline: "Tu te juges sans relâche.",
+    body: "L'âme lawwama est celle qui se blame. Elle voit ses fautes, tourne en boucle. C'est un signe de conscience — mais la boucle peut devenir une prison. Aujourd'hui, transforme le blame en action.",
+    niyyah: ["Pardon", "Avancer", "Douceur"],
+    tanbih: ["Rumination", "Culpabilité", "Stagnation"],
+    ayat: [
+      {
+        sourahAr: "سورة القيامة",
+        sourahLatin: "Al-Qiyama · 75:2",
+        marker: "۞",
+        ar: "وَلَا أُقْسِمُ بِالنَّفْسِ اللَّوَّامَةِ",
+        transliteration: "wa lā uqsimu bi-n-nafsi l-lawwāma",
+        fr: "Je jure par l'âme qui ne cesse de se blâmer.",
+        insight: "Allah jure par ton état. La lawwama n'est pas une faiblesse — c'est une étape sacrée. Le fait que tu te blâmes prouve que ta conscience est vivante."
+      },
+      {
+        sourahAr: "سورة آل عمران",
+        sourahLatin: "Al Imran · 3:135",
+        marker: "۞",
+        ar: "وَالَّذِينَ إِذَا فَعَلُوا فَاحِشَةً أَوْ ظَلَمُوا أَنفُسَهُمْ ذَكَرُوا اللَّهَ فَاسْتَغْفَرُوا لِذُنُوبِهِمْ",
+        transliteration: "wa lladhīna idhā faʿalū fāḥishatan aw ẓalamū anfusahum dhakarū llāha fa-staghfarū li-dhunūbihim",
+        fr: "Ceux qui, ayant commis un péché ou s'étant fait du tort, invoquent Allah et demandent pardon pour leurs péchés.",
+        insight: "L'istighfār n'est pas juste dire 'astaghfirullah'. C'est le moment où la lawwama se tourne vers la lumière. Fais-le maintenant, pas plus tard."
+      },
+      {
+        sourahAr: "سورة الزمر",
+        sourahLatin: "Az-Zumar · 39:53",
+        marker: "۞",
+        ar: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ",
+        transliteration: "qul yā ʿibādiya lladhīna asrafū ʿalā anfusihim lā taqnaṭū min raḥmati llāh",
+        fr: "Dis : Ô Mes serviteurs qui avez commis des excès à votre propre détriment, ne désespérez pas de la miséricorde d'Allah.",
+        insight: "Le désespoir est le piège de la lawwama. Ce verset est un antidote direct. Ne laisse pas ta conscience te mener au qunut — le désespoir."
+      },
+      {
+        sourahAr: "سورة التوبة",
+        sourahLatin: "At-Tawba · 9:118",
+        marker: "۞",
+        ar: "حَتَّىٰ إِذَا ضَاقَتْ عَلَيْهِمُ الْأَرْضُ بِمَا رَحُبَتْ وَضَاقَتْ عَلَيْهِمْ أَنفُسُهُمْ",
+        transliteration: "ḥattā idhā ḍāqat ʿalayhimu l-arḍu bimā raḥubat wa ḍāqat ʿalayhim anfusuhum",
+        fr: "Jusqu'à ce que la terre, malgré son étendue, leur devînt étroite et que leurs propres âmes leur devinrent étroites.",
+        insight: "La lawwama connaît cette étroitesse. Quand le monde entier semble trop petit pour ta douleur. Mais le verset continue : puis Il agréa leur repentir. L'étroitesse précède toujours l'ouverture."
+      }
+    ]
+  },
+  mutmainna: {
+    headline: "Ton cœur est apaisé.",
+    body: "L'âme mutma'inna est celle qui a trouvé sa paix en Allah. Pas l'absence de problèmes — mais la présence d'une certitude profonde. Aujourd'hui, habite cette sérénité. Elle est fragile et précieuse.",
+    niyyah: ["Gratitude", "Présence", "Générosité"],
+    tanbih: ["Orgueil", "Négligence", "Complaisance"],
+    ayat: [
+      {
+        sourahAr: "سورة الفجر",
+        sourahLatin: "Al-Fajr · 89:27-30",
+        marker: "۞",
+        ar: "يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ﴿٢٧﴾ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً",
+        transliteration: "yā ayyatuhā n-nafsu l-muṭmaʾinna, irjiʿī ilā rabbiki rāḍiyatan marḍiyya",
+        fr: "Ô toi, âme apaisée, retourne vers ton Seigneur, satisfaite et agréée.",
+        insight: "C'est l'appel le plus doux du Coran. Ton âme est appelée par son nom. Rāḍiya marḍiyya — satisfaite et agréée. Tu es dans l'état où Allah t'appelle à Lui avec tendresse."
+      },
+      {
+        sourahAr: "سورة الرعد",
+        sourahLatin: "Ar-Ra'd · 13:28",
+        marker: "۞",
+        ar: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+        transliteration: "a-lā bi-dhikri llāhi taṭmaʾinnu l-qulūb",
+        fr: "N'est-ce point par le rappel d'Allah que les cœurs s'apaisent ?",
+        insight: "Le dhikr est ce qui maintient la mutma'inna. Ce n'est pas un état acquis une fois pour toutes — c'est un état nourri par le souvenir constant."
+      },
+      {
+        sourahAr: "سورة الأنفال",
+        sourahLatin: "Al-Anfal · 8:2",
+        marker: "۞",
+        ar: "إِنَّمَا الْمُؤْمِنُونَ الَّذِينَ إِذَا ذُكِرَ اللَّهُ وَجِلَتْ قُلُوبُهُمْ",
+        transliteration: "innamā l-muʾminūna lladhīna idhā dhukira llāhu wajilat qulūbuhum",
+        fr: "Les vrais croyants sont ceux dont les cœurs frémissent quand on mentionne Allah.",
+        insight: "La mutma'inna ne signifie pas l'insensibilité. Ton cœur frémit encore — c'est le signe de sa vie spirituelle. La paix et le frémissement coexistent."
+      },
+      {
+        sourahAr: "سورة البقرة",
+        sourahLatin: "Al-Baqara · 2:286",
+        marker: "۞",
+        ar: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا",
+        transliteration: "lā yukallifu llāhu nafsan illā wusʿahā",
+        fr: "Allah n'impose à aucune âme une charge supérieure à sa capacité.",
+        insight: "Si tu es en paix aujourd'hui, c'est qu'Allah sait que tu peux porter ce qui t'a été donné. La mutma'inna n'est pas l'absence de charge — c'est la capacité de la porter avec sérénité."
+      }
+    ]
+  }
+};
+
+// --- Tab Navigation ---
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Update nav
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Update tabs
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    // Scroll to top
+    document.querySelector('.app-content').scrollTop = 0;
+  });
+});
+
+// --- Nafs Selection ---
+document.querySelectorAll('.nafs-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    // Update active state
+    document.querySelectorAll('.nafs-option').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+    // Show content
+    document.getElementById('nafs-empty').style.display = 'none';
+    document.getElementById('nafs-content').style.display = 'block';
+    // Populate content
+    renderNafsContent(opt.dataset.nafs);
+  });
+});
+
+function renderNafsContent(nafs) {
+  const data = nafsContent[nafs];
+  if (!data) return;
+
+  document.getElementById('daily-headline').textContent = data.headline;
+  document.getElementById('daily-body').textContent = data.body;
+
+  // Niyyah
+  const niyyahEl = document.getElementById('niyyah-items');
+  niyyahEl.innerHTML = data.niyyah.map(n => `<div class="nt-item">${n}</div>`).join('');
+
+  // Tanbih
+  const tanbihEl = document.getElementById('tanbih-items');
+  tanbihEl.innerHTML = data.tanbih.map(t => `<div class="nt-item">${t}</div>`).join('');
+
+  // Ayah sections
+  const ayahEl = document.getElementById('ayah-sections');
+  ayahEl.innerHTML = data.ayat.map((a, i) => `
+    <div class="ayah-section">
+      <div class="ayah-header">
+        <span class="ayah-marker">${a.marker}</span>
+        <span class="ayah-sourah-ar">${a.sourahAr}</span>
+        <span class="ayah-sourah-latin">${a.sourahLatin}</span>
+        <span class="ayah-arrow">→</span>
+      </div>
+      <div class="ayah-body">
+        <button class="ayah-play" data-index="${i}" data-nafs="${nafs}">
+          <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+        </button>
+        <div class="ayah-text-ar" id="ayah-text-${nafs}-${i}">${a.ar}</div>
+      </div>
+      <div class="ayah-translation">${a.fr}</div>
+      <div class="small-separator"></div>
+      <div class="ayah-insight">${a.insight}</div>
+    </div>
+    ${i < data.ayat.length - 1 ? '<div class="divider"></div>' : ''}
+  `).join('');
+
+  // Attach play button listeners
+  ayahEl.querySelectorAll('.ayah-play').forEach(btn => {
+    btn.addEventListener('click', () => togglePlay(btn));
+  });
+}
+
+function togglePlay(btn) {
+  const idx = btn.dataset.index;
+  const nafs = btn.dataset.nafs;
+  const textEl = document.getElementById(`ayah-text-${nafs}-${idx}`);
+  const data = nafsContent[nafs].ayat[idx];
+
+  if (btn.classList.contains('playing')) {
+    btn.classList.remove('playing');
+    btn.innerHTML = '<svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>';
+    textEl.classList.remove('transliteration');
+    textEl.textContent = data.ar;
+  } else {
+    btn.classList.add('playing');
+    btn.innerHTML = '<svg viewBox="0 0 10 12"><rect x="0" y="0" width="3" height="12"/><rect x="7" y="0" width="3" height="12"/></svg>';
+    textEl.classList.add('transliteration');
+    textEl.textContent = data.transliteration;
+  }
+}
+
+// --- Ghazali time-aware ---
+function updateGhazali() {
+  const hour = new Date().getHours();
+  const descEl = document.getElementById('ghazali-desc');
+  const timeEl = document.getElementById('ghazali-time');
+  if (hour < 14) {
+    descEl.textContent = "Mushārata — le pacte du matin avec ton âme.";
+    timeEl.textContent = "MUSHĀRATA · MATIN";
+  } else {
+    descEl.textContent = "Muḥāsaba — le bilan du soir de ton âme.";
+    timeEl.textContent = "MUḤĀSABA · SOIR";
+  }
+}
+updateGhazali();
+
+// --- Dream input (placeholder) ---
+document.getElementById('dream-submit').addEventListener('click', () => {
+  const input = document.getElementById('dream-input').value.trim();
+  if (!input) return;
+  // Show placeholder response
+  document.getElementById('dream-response-text').textContent = "L'interprétation de ton rêve sera disponible prochainement. En attendant, sache que dans la tradition d'Ibn Sirin, chaque rêve est un miroir de l'état de l'âme.";
+  document.getElementById('dream-followups').innerHTML = [
+    "Que signifie l'eau dans les rêves ?",
+    "Quel lien entre mon rêve et mon nafs ?",
+    "Ibn Sirin a-t-il interprété des rêves similaires ?"
+  ].map(q => `<button class="dream-followup"><span>${q}</span></button>`).join('');
+  document.getElementById('dream-response').classList.add('visible');
+});
+
+// ========================================
+// AUTH — Supabase Session Management
+// ========================================
+let sbClient = null;
+let accessToken = null;
+
+function getAnonId() {
+  let id = localStorage.getItem('ghazali_anon_id');
+  if (!id) {
+    id = 'anon_' + crypto.randomUUID();
+    localStorage.setItem('ghazali_anon_id', id);
+  }
+  return id;
+}
+
+function authHeaders() {
+  const headers = { 'Content-Type': 'application/json' };
+  if (accessToken) {
+    headers['Authorization'] = 'Bearer ' + accessToken;
+  } else {
+    headers['X-Anon-Id'] = getAnonId();
+  }
+  return headers;
+}
+
+function updateProfileUI(user) {
+  const settingsEl = document.querySelector('.profil-settings');
+  if (!settingsEl) return;
+
+  const disconnectRow = settingsEl.querySelector('[data-action="logout"]');
+
+  if (user) {
+    // Show email + sign out
+    if (!disconnectRow) {
+      const row = document.createElement('div');
+      row.className = 'profil-setting';
+      row.dataset.action = 'logout';
+      row.innerHTML = '<span class="profil-setting-label">SE DECONNECTER</span><span class="profil-setting-arrow">→</span>';
+      row.addEventListener('click', async () => {
+        await sbClient.auth.signOut();
+        accessToken = null;
+        window.location.href = '/onboarding';
+      });
+      settingsEl.appendChild(row);
+    }
+  }
+
+  // Wire existing "SE DECONNECTER" text links
+  settingsEl.querySelectorAll('.profil-setting').forEach(el => {
+    const label = el.querySelector('.profil-setting-label');
+    if (label && label.textContent.includes('CONNECTER')) {
+      if (user) {
+        label.textContent = 'SE DECONNECTER';
+        el.onclick = async () => {
+          await sbClient.auth.signOut();
+          accessToken = null;
+          window.location.href = '/onboarding';
+        };
+      } else {
+        label.textContent = 'SE CONNECTER';
+        el.onclick = () => { window.location.href = '/onboarding'; };
+      }
+    }
+  });
+}
+
+async function migrateAnon() {
+  const anonId = localStorage.getItem('ghazali_anon_id');
+  if (!anonId || !accessToken) return;
+  try {
+    await fetch('/api/migrate-anon', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ anon_id: anonId }),
+    });
+    localStorage.removeItem('ghazali_anon_id');
+  } catch (e) {
+    console.error('Anon migration failed:', e);
+  }
+}
+
+async function initAuthSession() {
+  try {
+    const res = await fetch('/api/config');
+    if (!res.ok) return;
+    const { supabaseUrl, supabaseAnonKey } = await res.json();
+    sbClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    // Check existing session (also picks up OAuth redirect tokens from URL hash)
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session) {
+      accessToken = session.access_token;
+      updateProfileUI(session.user);
+      migrateAnon();
+    } else {
+      updateProfileUI(null);
+    }
+
+    // Listen for auth changes (token refresh, sign in/out)
+    sbClient.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        accessToken = session.access_token;
+        updateProfileUI(session.user);
+        if (event === 'SIGNED_IN') migrateAnon();
+      } else {
+        accessToken = null;
+        updateProfileUI(null);
+      }
+    });
+  } catch (e) {
+    console.error('Auth init failed:', e);
+    updateProfileUI(null);
+  }
+}
+
+initAuthSession();
+</script>
+
+</body>
+</html>

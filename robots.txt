@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /config.js
-
-Sitemap: https://almanami.com/sitemap.xml
+Sitemap: https://ghazali.com/sitemap.xml
