@@ -244,9 +244,9 @@ html, body {
 }
 
 .section-break {
-  height: 8px;
-  background: rgba(12,20,30,0.5);
-  margin: 0;
+  height: 0.5px;
+  background: rgba(62, 93, 120, 0.4);
+  margin: var(--gap-section) var(--padding-page);
 }
 
 .small-separator {
@@ -449,6 +449,17 @@ html, body {
   color: var(--indigo-muted);
   text-align: center;
   margin-top: 8px;
+}
+
+/* Spacer above nav adapts to context */
+.home-spacer {
+  height: 100px;
+}
+
+@media (display-mode: standalone) {
+  .home-spacer {
+    height: 80px;
+  }
 }
 
 /* --- Daily Statement --- */
@@ -1098,11 +1109,30 @@ html, body {
 .onboarding-screen {
   display: none;
   flex-direction: column;
+  /* Fill viewport minus padding: 40px top + 40px bottom approx */
   min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
 }
 
 .onboarding-screen.active {
   display: flex;
+}
+
+/* Standalone (homescreen) vs browser: adjust for Safari chrome */
+@media (display-mode: standalone) {
+  .onboarding-screen {
+    min-height: calc(100dvh - 80px);
+  }
+}
+
+/* safe-area for notch devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .onboarding-content {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+  .bottom-nav {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
 }
 
 /* Shared onboarding elements */
@@ -1226,7 +1256,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 400;
-  color: var(--indigo-muted);
+  color: var(--indigo-secondary);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   text-decoration: underline;
@@ -1338,9 +1368,9 @@ html, body {
 .ob-iphone-expand {
   display: none;
   text-align: left;
-  margin-top: 16px;
+  margin-top: 12px;
   border: 1px solid rgba(232, 198, 93, 0.15);
-  padding: 20px;
+  padding: 16px;
   background: var(--gold-active-bg);
 }
 
@@ -1412,6 +1442,7 @@ html, body {
 
 .ob-flow-container {
   display: none;
+  margin-top: 12px;
 }
 
 .ob-flow-container.active {
@@ -1473,36 +1504,35 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 8px;
-  height: 300px;
+  height: 260px;
   overflow: hidden;
   position: relative;
   margin-bottom: 20px;
 }
 
+/* Subtle highlight for selected row — no borders, just a soft bg */
 .ob-date-picker::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% - 40px);
-  max-width: 320px;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
   height: 44px;
-  border-top: 1px solid var(--gold);
-  border-bottom: 1px solid var(--gold);
-  background: rgba(232,198,93,0.08);
+  background: rgba(237, 229, 212, 0.04);
   pointer-events: none;
   z-index: 1;
 }
 
+/* Fade edges for depth */
 .ob-date-picker::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
     var(--indigo-ground) 0%,
-    transparent 30%,
-    transparent 70%,
+    transparent 25%,
+    transparent 75%,
     var(--indigo-ground) 100%
   );
   pointer-events: none;
@@ -1516,7 +1546,6 @@ html, body {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: y mandatory;
-  perspective: 300px;
 }
 
 .ob-date-col::-webkit-scrollbar {
@@ -1595,8 +1624,8 @@ html, body {
 .ob-notif-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 20px 0;
+  gap: 6px;
+  margin: 12px 0;
 }
 
 .ob-notif {

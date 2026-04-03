@@ -70,7 +70,7 @@
     <div class="onboarding-screen" data-screen="2">
       <p class="ob-gold-intro">Dans la tradition islamique, ton prénom porte une intention.</p>
       <div class="ob-question">COMMENT TU T'APPELLES ?</div>
-      <input type="text" class="ob-input" id="ob-name" placeholder="Ton prénom" autocomplete="given-name">
+      <input type="text" class="ob-input" id="ob-name" placeholder="Ton prénom" autocomplete="given-name" spellcheck="false" autocorrect="off">
       <div class="ob-privacy" style="margin-top:16px;">Nous ne partagerons jamais tes données.</div>
       <button class="btn-continue" onclick="saveName()" style="margin-top:auto;">
         <span>CONTINUER</span>
@@ -79,14 +79,14 @@
 
     <!-- ===== SCREEN 3: PARENTS ===== -->
     <div class="onboarding-screen" data-screen="3">
-      <p class="ob-gold-intro">Tu es fille de ton père et de ta mère. Leurs noms font partie de qui tu es.</p>
+      <p class="ob-gold-intro">Les prénoms de tes parents font partie de qui tu es.</p>
       <div class="ob-question">LES PRÉNOMS DE TES PARENTS</div>
 
       <div class="ob-input-label" style="margin-top:24px;">PÈRE</div>
-      <input type="text" class="ob-input" id="ob-father" placeholder="Prénom du père" autocomplete="off">
+      <input type="text" class="ob-input" id="ob-father" placeholder="Prénom du père" autocomplete="given-name" spellcheck="false" autocorrect="off">
 
       <div class="ob-input-label" style="margin-top:24px;">MÈRE</div>
-      <input type="text" class="ob-input" id="ob-mother" placeholder="Prénom de la mère" autocomplete="off">
+      <input type="text" class="ob-input" id="ob-mother" placeholder="Prénom de la mère" autocomplete="given-name" spellcheck="false" autocorrect="off">
 
       <button class="btn-continue" onclick="saveParents()" style="margin-top:auto;">
         <span>CONTINUER</span>
@@ -95,7 +95,7 @@
 
     <!-- ===== SCREEN 4: DATE OF BIRTH ===== -->
     <div class="onboarding-screen" data-screen="4">
-      <div class="ob-question" style="padding-top:40px;">DATE DE NAISSANCE</div>
+      <div class="ob-question">DATE DE NAISSANCE</div>
 
       <div class="ob-date-picker" style="margin-top:24px;">
         <div class="ob-date-col" id="ob-day-col"></div>
@@ -190,9 +190,9 @@
 
     <!-- ===== SCREEN 8: DOWNLOAD APP + NOTIFICATIONS ===== -->
     <div class="onboarding-screen" data-screen="8">
-      <div style="margin-bottom:24px;">
-        <h2 style="font-family:var(--font-serif); font-size:22px; font-weight:300; color:var(--gold-glow); line-height:1.35;">Reçois ta clairvoyance chaque matin.</h2>
-        <p style="font-family:var(--font-serif); font-size:14px; font-weight:300; color:var(--indigo-secondary); margin-top:8px;">Une lecture par jour. Pas de spam.</p>
+      <div style="margin-bottom:16px;">
+        <h2 style="font-family:var(--font-serif); font-size:20px; font-weight:300; color:var(--gold-glow); line-height:1.35;">Reçois ta clairvoyance chaque matin.</h2>
+        <p style="font-family:var(--font-serif); font-size:13px; font-weight:300; color:var(--indigo-secondary); margin-top:6px;">Une lecture par jour. Pas de spam.</p>
       </div>
 
       <!-- Mock iOS notifications -->
