@@ -223,42 +223,41 @@
         </div>
       </div>
 
-      <!-- Platform selection -->
-      <div class="ob-platform-select" id="platform-select">
+      <!-- Platform selection row -->
+      <div class="ob-platform-row">
         <button class="ob-platform-btn" id="btn-iphone" onclick="selectPlatform('iphone')">
           <span class="ob-platform-label">IPHONE</span>
-
-          <!-- iOS instructions (expand inside button when selected) -->
-          <div class="ob-iphone-expand">
-            <div class="ob-ios-steps">
-              <div class="ob-ios-step">
-                <div class="ob-ios-step-num">1</div>
-                <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
-              </div>
-              <div class="ob-ios-step">
-                <div class="ob-ios-step-num">2</div>
-                <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
-              </div>
-              <div class="ob-ios-step">
-                <div class="ob-ios-step-num">3</div>
-                <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
-              </div>
-            </div>
-            <div class="ob-ios-after-note">Ensuite, ouvre Ghazali depuis ton écran d'accueil pour activer les notifications.</div>
-            <button class="btn-primary" id="btn-ios-added" style="width:100%; margin-bottom:8px;" onclick="event.stopPropagation(); handleIosAdded();">
-              <span>J'AI AJOUTÉ L'APP</span>
-            </button>
-            <div class="ob-ios-reminder" id="ios-reminder" style="display:none;">
-              Ouvre Ghazali depuis ton écran d'accueil pour continuer.
-            </div>
-            <button class="btn-ghost" id="btn-ios-skip" style="display:none;" onclick="event.stopPropagation(); requestNotifPermission();">
-              <span>CONTINUER QUAND MÊME</span>
-            </button>
-          </div>
         </button>
-
         <button class="ob-platform-btn" id="btn-android" onclick="selectPlatform('android')">
           <span class="ob-platform-label">ANDROID</span>
+        </button>
+      </div>
+
+      <!-- iPhone expand (appears below buttons when iPhone selected) -->
+      <div class="ob-iphone-expand" id="flow-iphone">
+        <div class="ob-ios-steps">
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">1</div>
+            <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">2</div>
+            <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">3</div>
+            <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
+          </div>
+        </div>
+        <div class="ob-ios-after-note">Ensuite, ouvre Ghazali depuis ton écran d'accueil pour activer les notifications.</div>
+        <button class="btn-primary" id="btn-ios-added" style="width:100%; margin-bottom:8px;" onclick="handleIosAdded();">
+          <span>J'AI AJOUTÉ L'APP</span>
+        </button>
+        <div class="ob-ios-reminder" id="ios-reminder" style="display:none;">
+          Ouvre Ghazali depuis ton écran d'accueil pour continuer.
+        </div>
+        <button class="btn-ghost" id="btn-ios-skip" style="display:none;" onclick="requestNotifPermission();">
+          <span>CONTINUER QUAND MÊME</span>
         </button>
       </div>
 
@@ -414,7 +413,7 @@ function initDatePicker() {
   const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
   function buildCol(col, items) {
-    const padCount = 2;
+    const padCount = 3;
     let html = '';
     for (let p = 0; p < padCount; p++) {
       html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
@@ -599,7 +598,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 function selectPlatform(platform) {
   document.getElementById('btn-iphone').classList.toggle('selected', platform === 'iphone');
   document.getElementById('btn-android').classList.toggle('selected', platform === 'android');
-  // Android flow container
+  document.getElementById('flow-iphone').classList.toggle('active', platform === 'iphone');
   document.getElementById('flow-android').classList.toggle('active', platform === 'android');
 }
 

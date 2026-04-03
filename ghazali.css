@@ -1088,8 +1088,7 @@ html, body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding: 40px 24px;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .onboarding-content::-webkit-scrollbar {
@@ -1099,7 +1098,7 @@ html, body {
 .onboarding-screen {
   display: none;
   flex-direction: column;
-  flex: 1;
+  min-height: calc(100vh - 80px);
 }
 
 .onboarding-screen.active {
@@ -1291,11 +1290,10 @@ html, body {
 
 /* Platform selection */
 /* Platform selection */
-.ob-platform-select {
+.ob-platform-row {
   display: flex;
   gap: 10px;
-  margin: 20px 0;
-  align-items: flex-start;
+  margin: 20px 0 0;
 }
 
 .ob-platform-btn {
@@ -1306,7 +1304,6 @@ html, body {
   text-align: center;
   -webkit-tap-highlight-color: transparent;
   transition: border-color 0.2s ease, background 0.2s ease;
-  flex-shrink: 0;
 }
 
 .ob-platform-btn:active { transform: scale(0.98); }
@@ -1328,26 +1325,26 @@ html, body {
   color: var(--gold);
 }
 
-/* Android button: fixed small width */
 #btn-android {
   width: 110px;
+  flex-shrink: 0;
 }
 
-/* iPhone button: expands when selected */
 #btn-iphone {
   flex: 1;
 }
 
-/* iOS instructions inside the button */
+/* iOS instructions — separate container below buttons */
 .ob-iphone-expand {
   display: none;
   text-align: left;
   margin-top: 16px;
-  border-top: 1px solid rgba(232, 198, 93, 0.15);
-  padding-top: 16px;
+  border: 1px solid rgba(232, 198, 93, 0.15);
+  padding: 20px;
+  background: var(--gold-active-bg);
 }
 
-.ob-platform-btn.selected .ob-iphone-expand {
+.ob-iphone-expand.active {
   display: block;
 }
 
@@ -1476,7 +1473,7 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 8px;
-  height: 200px;
+  height: 300px;
   overflow: hidden;
   position: relative;
   margin-bottom: 20px;
