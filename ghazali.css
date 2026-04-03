@@ -1484,6 +1484,7 @@ html, body {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: y mandatory;
+  perspective: 300px;
 }
 
 .ob-date-col::-webkit-scrollbar {
@@ -1501,9 +1502,13 @@ html, body {
   color: var(--indigo-muted);
   scroll-snap-align: center;
   cursor: pointer;
-  transition: color 0.15s ease, font-size 0.15s ease;
   user-select: none;
   -webkit-user-select: none;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition: none;
 }
 
 .ob-date-item.selected {
