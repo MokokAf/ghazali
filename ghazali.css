@@ -1101,6 +1101,7 @@ html, body {
   scrollbar-width: none;
   padding: 40px 24px;
   padding-top: calc(40px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   position: relative;
 }
 
@@ -1111,9 +1112,7 @@ html, body {
 .onboarding-screen {
   display: none;
   flex-direction: column;
-  /* Fill viewport minus padding: 40px top + 40px bottom approx */
-  min-height: calc(100vh - 80px);
-  min-height: calc(100dvh - 80px);
+  min-height: calc(100dvh - 80px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
 }
 
 .onboarding-screen.active {

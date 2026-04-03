@@ -391,20 +391,28 @@ function saveParents() {
 const ITEM_H = 40;
 const wheelInstances = {};
 
-function WheelColumn(colEl, items, defaultValue) {
+function WheelColumn(colEl, items) {
   const inner = colEl.querySelector('.ob-date-col-inner');
-  const colH = colEl.offsetHeight || 220;
-  const centerOffset = (colH / 2) - (ITEM_H / 2);
-  let offset = 0; // current translateY
+  let colH = 220;
+  let centerOffset = (colH / 2) - (ITEM_H / 2);
+  let offset = 0;
   let selectedIndex = 0;
   const maxIndex = items.length - 1;
+  let initialized = false;
 
   // Build items
   inner.innerHTML = items.map((item, i) =>
     `<div class="ob-date-item" data-value="${item.value}" data-index="${i}">${item.label}</div>`
   ).join('');
 
-  // Set position by index
+  function recalc() {
+    const h = colEl.offsetHeight;
+    if (h > 0) {
+      colH = h;
+      centerOffset = (colH / 2) - (ITEM_H / 2);
+    }
+  }
+
   function setIndex(idx, animate) {
     idx = Math.max(0, Math.min(maxIndex, idx));
     selectedIndex = idx;
@@ -422,20 +430,14 @@ function WheelColumn(colEl, items, defaultValue) {
     inner.querySelectorAll('.ob-date-item').forEach((el, i) => {
       const dist = Math.abs(i - selectedIndex);
       el.classList.toggle('selected', dist === 0);
-      // Opacity falloff
       const op = dist === 0 ? 1 : dist === 1 ? 0.5 : dist === 2 ? 0.25 : 0.12;
       el.style.opacity = op;
-      // Scale
       const sc = dist === 0 ? 1 : 1 - dist * 0.06;
       el.style.transform = `scale(${Math.max(sc, 0.8)})`;
     });
   }
 
-  // Find index by value
-  const defaultIdx = items.findIndex(it => it.value === defaultValue);
-  setIndex(defaultIdx >= 0 ? defaultIdx : 0, false);
-
-  // Touch handling with inertia
+  // Touch handling
   let startY, startOffset, lastY, lastTime, velocity;
   let animFrame;
 
@@ -459,39 +461,49 @@ function WheelColumn(colEl, items, defaultValue) {
     lastY = t.clientY;
     lastTime = now;
     offset = startOffset + (t.clientY - startY);
-    // Clamp with rubber band
     const minOff = centerOffset - maxIndex * ITEM_H;
     const maxOff = centerOffset;
     if (offset > maxOff) offset = maxOff + (offset - maxOff) * 0.3;
     if (offset < minOff) offset = minOff + (offset - minOff) * 0.3;
     inner.style.transform = `translateY(${offset}px)`;
+    // Live update visuals during drag
+    const approxIdx = Math.round((centerOffset - offset) / ITEM_H);
+    const clampedIdx = Math.max(0, Math.min(maxIndex, approxIdx));
+    if (clampedIdx !== selectedIndex) {
+      selectedIndex = clampedIdx;
+      updateVisuals();
+    }
   }, { passive: false });
 
   colEl.addEventListener('touchend', () => {
-    // Inertia
     const friction = 0.95;
-    function inertia() {
+    function inertiaStep() {
       if (Math.abs(velocity) > 0.01) {
         offset += velocity * 16;
         velocity *= friction;
         const minOff = centerOffset - maxIndex * ITEM_H;
         const maxOff = centerOffset;
-        if (offset > maxOff || offset < minOff) velocity *= 0.5; // dampen at edges
+        if (offset > maxOff || offset < minOff) velocity *= 0.5;
         offset = Math.max(minOff - 20, Math.min(maxOff + 20, offset));
         inner.style.transform = `translateY(${offset}px)`;
-        animFrame = requestAnimationFrame(inertia);
+        const approxIdx = Math.round((centerOffset - offset) / ITEM_H);
+        const clampedIdx = Math.max(0, Math.min(maxIndex, approxIdx));
+        if (clampedIdx !== selectedIndex) {
+          selectedIndex = clampedIdx;
+          updateVisuals();
+        }
+        animFrame = requestAnimationFrame(inertiaStep);
       } else {
         snapToNearest();
       }
     }
     if (Math.abs(velocity) > 0.3) {
-      animFrame = requestAnimationFrame(inertia);
+      animFrame = requestAnimationFrame(inertiaStep);
     } else {
       snapToNearest();
     }
   }, { passive: true });
 
-  // Mouse wheel support (desktop)
   colEl.addEventListener('wheel', (e) => {
     e.preventDefault();
     const dir = e.deltaY > 0 ? 1 : -1;
@@ -503,7 +515,6 @@ function WheelColumn(colEl, items, defaultValue) {
     setIndex(idx, true);
   }
 
-  // Tap to select
   colEl.addEventListener('click', (e) => {
     const item = e.target.closest('.ob-date-item');
     if (!item) return;
@@ -512,34 +523,52 @@ function WheelColumn(colEl, items, defaultValue) {
 
   return {
     getValue: () => items[selectedIndex]?.value,
-    setByValue: (val) => {
-      const idx = items.findIndex(it => it.value === val);
-      if (idx >= 0) setIndex(idx, false);
+    init: (defaultVal) => {
+      recalc();
+      const idx = items.findIndex(it => it.value === defaultVal);
+      setIndex(idx >= 0 ? idx : 0, false);
+      initialized = true;
     },
-    refresh: () => setIndex(selectedIndex, false),
+    refresh: () => { recalc(); setIndex(selectedIndex, false); },
   };
 }
 
+let datePickerBuilt = false;
+
 function initDatePicker() {
-  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  if (datePickerBuilt) {
+    // Already built — just recalc dimensions and reset positions
+    wheelInstances.day.refresh();
+    wheelInstances.month.refresh();
+    wheelInstances.year.refresh();
+    return;
+  }
+
+  const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
   const dayItems = [];
   for (let i = 1; i <= 31; i++) dayItems.push({ value: i, label: i });
   const monthItems = months.map((m, i) => ({ value: i + 1, label: m }));
   const yearItems = [];
   for (let i = 2010; i >= 1940; i--) yearItems.push({ value: i, label: i });
 
-  wheelInstances.day = new WheelColumn(document.getElementById('ob-day-col'), dayItems, 15);
-  wheelInstances.month = new WheelColumn(document.getElementById('ob-month-col'), monthItems, 3);
-  wheelInstances.year = new WheelColumn(document.getElementById('ob-year-col'), yearItems, 1992);
+  wheelInstances.day = new WheelColumn(document.getElementById('ob-day-col'), dayItems);
+  wheelInstances.month = new WheelColumn(document.getElementById('ob-month-col'), monthItems);
+  wheelInstances.year = new WheelColumn(document.getElementById('ob-year-col'), yearItems);
 
-  window._initDatePickerScroll = function() {
-    wheelInstances.day.refresh();
-    wheelInstances.month.refresh();
-    wheelInstances.year.refresh();
-  };
+  // Defer init until next frame (screen 4 is now display:flex)
+  requestAnimationFrame(() => {
+    wheelInstances.day.init(15);
+    wheelInstances.month.init(3);
+    wheelInstances.year.init(1993);
+  });
+
+  datePickerBuilt = true;
 }
 
-initDatePicker();
+// Don't init on load — init when screen 4 becomes visible
+window._initDatePickerScroll = function() {
+  initDatePicker();
+};
 
 function saveDateOfBirth() {
   const day = wheelInstances.day?.getValue() || 15;
