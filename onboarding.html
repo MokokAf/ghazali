@@ -195,25 +195,28 @@
         <p style="font-family:var(--font-serif); font-size:14px; font-weight:300; color:var(--indigo-secondary); margin-top:8px;">Une lecture par jour. Pas de spam.</p>
       </div>
 
-      <!-- Mock notifications -->
+      <!-- Mock iOS notifications -->
       <div class="ob-notif-stack">
         <div class="ob-notif">
           <div class="ob-notif-header">
-            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
-            <span class="ob-notif-time">08:12</span>
+            <div class="ob-notif-app-icon"><span>۞</span></div>
+            <span class="ob-notif-brand">GHAZALI</span>
+            <span class="ob-notif-time">8 min</span>
           </div>
           <div class="ob-notif-text">Tu cours après ce qui te consume. Choisis ton nafs.</div>
         </div>
         <div class="ob-notif dim">
           <div class="ob-notif-header">
-            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
+            <div class="ob-notif-app-icon"><span>۞</span></div>
+            <span class="ob-notif-brand">GHAZALI</span>
             <span class="ob-notif-time">Hier</span>
           </div>
           <div class="ob-notif-text">Ton cœur est apaisé. Habite cette sérénité.</div>
         </div>
         <div class="ob-notif dim">
           <div class="ob-notif-header">
-            <span><span class="ob-notif-icon">۞</span><span class="ob-notif-brand">GHAZALI</span></span>
+            <div class="ob-notif-app-icon"><span>۞</span></div>
+            <span class="ob-notif-brand">GHAZALI</span>
             <span class="ob-notif-time">Mar 29</span>
           </div>
           <div class="ob-notif-text">L'âme lawwama est une étape sacrée.</div>
@@ -223,10 +226,39 @@
       <!-- Platform selection -->
       <div class="ob-platform-select" id="platform-select">
         <button class="ob-platform-btn" id="btn-iphone" onclick="selectPlatform('iphone')">
-          <span>IPHONE</span>
+          <span class="ob-platform-label">IPHONE</span>
+
+          <!-- iOS instructions (expand inside button when selected) -->
+          <div class="ob-iphone-expand">
+            <div class="ob-ios-steps">
+              <div class="ob-ios-step">
+                <div class="ob-ios-step-num">1</div>
+                <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
+              </div>
+              <div class="ob-ios-step">
+                <div class="ob-ios-step-num">2</div>
+                <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
+              </div>
+              <div class="ob-ios-step">
+                <div class="ob-ios-step-num">3</div>
+                <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
+              </div>
+            </div>
+            <div class="ob-ios-after-note">Ensuite, ouvre Ghazali depuis ton écran d'accueil pour activer les notifications.</div>
+            <button class="btn-primary" id="btn-ios-added" style="width:100%; margin-bottom:8px;" onclick="event.stopPropagation(); handleIosAdded();">
+              <span>J'AI AJOUTÉ L'APP</span>
+            </button>
+            <div class="ob-ios-reminder" id="ios-reminder" style="display:none;">
+              Ouvre Ghazali depuis ton écran d'accueil pour continuer.
+            </div>
+            <button class="btn-ghost" id="btn-ios-skip" style="display:none;" onclick="event.stopPropagation(); requestNotifPermission();">
+              <span>CONTINUER QUAND MÊME</span>
+            </button>
+          </div>
         </button>
+
         <button class="ob-platform-btn" id="btn-android" onclick="selectPlatform('android')">
-          <span>ANDROID</span>
+          <span class="ob-platform-label">ANDROID</span>
         </button>
       </div>
 
@@ -240,36 +272,6 @@
         </div>
         <button class="btn-primary" id="btn-android-notif" style="width:100%; display:none;">
           <span>ACTIVER LES NOTIFICATIONS</span>
-        </button>
-      </div>
-
-      <!-- iPhone flow -->
-      <div class="ob-flow-container" id="flow-iphone">
-        <div class="ob-ios-steps">
-          <div class="ob-ios-step">
-            <div class="ob-ios-step-num">1</div>
-            <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
-          </div>
-          <div class="ob-ios-step">
-            <div class="ob-ios-step-num">2</div>
-            <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
-          </div>
-          <div class="ob-ios-step">
-            <div class="ob-ios-step-num">3</div>
-            <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
-          </div>
-        </div>
-        <p style="font-family:var(--font-serif); font-size:13px; font-weight:300; font-style:italic; color:var(--indigo-secondary); margin-bottom:16px;">
-          Ensuite, ouvre Ghazali depuis ton écran d'accueil pour activer les notifications.
-        </p>
-        <button class="btn-primary" id="btn-ios-added" style="width:100%; margin-bottom:8px;">
-          <span>J'AI AJOUTÉ L'APP</span>
-        </button>
-        <div class="ob-ios-reminder" id="ios-reminder" style="display:none;">
-          Ouvre Ghazali depuis ton écran d'accueil pour continuer.
-        </div>
-        <button class="btn-ghost" id="btn-ios-skip" style="display:none;">
-          <span>CONTINUER QUAND MÊME</span>
         </button>
       </div>
 
@@ -307,8 +309,7 @@ function goScreen(n) {
     setTimeout(() => goScreen(7), 3000);
   }
 
-  // Auto-detect platform when entering screen 8
-  if (n === 8) autoSelectPlatform();
+  // No auto-select on screen 8 — let user choose platform
 }
 
 function finishOnboarding() {
@@ -595,21 +596,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredInstallPrompt = e;
 });
 
-function autoSelectPlatform() {
-  const ua = navigator.userAgent || '';
-  if (/iPhone|iPad|iPod/i.test(ua)) {
-    selectPlatform('iphone');
-  } else {
-    selectPlatform('android');
-  }
-}
-
 function selectPlatform(platform) {
-  // Toggle button states
   document.getElementById('btn-iphone').classList.toggle('selected', platform === 'iphone');
   document.getElementById('btn-android').classList.toggle('selected', platform === 'android');
-  // Toggle flow containers
-  document.getElementById('flow-iphone').classList.toggle('active', platform === 'iphone');
+  // Android flow container
   document.getElementById('flow-android').classList.toggle('active', platform === 'android');
 }
 
@@ -623,7 +613,6 @@ document.getElementById('btn-install-pwa').addEventListener('click', async () =>
   const { outcome } = await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
   if (outcome === 'accepted') {
-    // Show notification button
     document.getElementById('btn-install-pwa').style.display = 'none';
     document.getElementById('btn-android-notif').style.display = 'block';
   }
@@ -633,8 +622,8 @@ document.getElementById('btn-android-notif').addEventListener('click', () => {
   requestNotifPermission();
 });
 
-// iPhone flow
-document.getElementById('btn-ios-added').addEventListener('click', () => {
+// iPhone flow (handlers called via inline onclick with stopPropagation)
+function handleIosAdded() {
   const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   if (isStandalone) {
     requestNotifPermission();
@@ -642,11 +631,7 @@ document.getElementById('btn-ios-added').addEventListener('click', () => {
     document.getElementById('ios-reminder').style.display = 'block';
     document.getElementById('btn-ios-skip').style.display = 'block';
   }
-});
-
-document.getElementById('btn-ios-skip').addEventListener('click', () => {
-  requestNotifPermission();
-});
+}
 
 async function requestNotifPermission() {
   if ('Notification' in window && Notification.permission === 'default') {

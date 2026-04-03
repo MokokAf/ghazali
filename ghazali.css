@@ -1290,25 +1290,28 @@ html, body {
 }
 
 /* Platform selection */
+/* Platform selection */
 .ob-platform-select {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin: 20px 0;
+  align-items: flex-start;
 }
 
 .ob-platform-btn {
-  flex: 1;
-  padding: 16px;
+  padding: 16px 12px;
   background: transparent;
   border: 1px solid var(--indigo-muted);
   cursor: pointer;
   text-align: center;
   -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .ob-platform-btn:active { transform: scale(0.98); }
 
-.ob-platform-btn span {
+.ob-platform-btn .ob-platform-label {
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 2px;
@@ -1321,22 +1324,44 @@ html, body {
   background: var(--gold-active-bg);
 }
 
-.ob-platform-btn.selected span {
+.ob-platform-btn.selected .ob-platform-label {
   color: var(--gold);
 }
 
-/* iOS install instructions */
+/* Android button: fixed small width */
+#btn-android {
+  width: 110px;
+}
+
+/* iPhone button: expands when selected */
+#btn-iphone {
+  flex: 1;
+}
+
+/* iOS instructions inside the button */
+.ob-iphone-expand {
+  display: none;
+  text-align: left;
+  margin-top: 16px;
+  border-top: 1px solid rgba(232, 198, 93, 0.15);
+  padding-top: 16px;
+}
+
+.ob-platform-btn.selected .ob-iphone-expand {
+  display: block;
+}
+
 .ob-ios-steps {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin: 20px 0;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .ob-ios-step {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ob-ios-step-num {
@@ -1344,8 +1369,8 @@ html, body {
   font-size: 10px;
   color: var(--gold);
   border: 1px solid var(--gold);
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1354,16 +1379,26 @@ html, body {
 
 .ob-ios-step-text {
   font-family: var(--font-serif);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 300;
   color: var(--vellum-dim);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .ob-ios-step-text svg {
   display: inline-block;
   vertical-align: middle;
   margin: 0 2px;
+}
+
+.ob-ios-after-note {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--indigo-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
 }
 
 /* Install flow states */
@@ -1559,54 +1594,78 @@ html, body {
 
 
 /* Notification mocks — frosted glass */
+/* iOS-style notification mocks */
 .ob-notif-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 24px 0;
+  gap: 8px;
+  margin: 20px 0;
 }
 
 .ob-notif {
-  border: 1px solid var(--indigo-structure);
-  padding: 14px 16px;
-  background: rgba(26, 45, 66, 0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 14px;
+  background: rgba(30, 48, 68, 0.72);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
 }
 
 .ob-notif-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+.ob-notif-app-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: var(--indigo-ground);
+  border: 0.5px solid rgba(232, 198, 93, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.ob-notif-app-icon span {
+  font-family: var(--font-arabic);
+  font-size: 11px;
+  color: var(--gold);
+  line-height: 1;
 }
 
 .ob-notif-brand {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 400;
-  color: var(--gold);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vellum);
+  letter-spacing: 0;
+  text-transform: none;
+  flex: 1;
 }
 
 .ob-notif-time {
-  font-family: var(--font-mono);
-  font-size: 8px;
+  font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  font-size: 12px;
   font-weight: 400;
-  color: var(--indigo-muted);
+  color: rgba(237, 229, 212, 0.4);
+  margin-left: 8px;
 }
 
 .ob-notif-text {
-  font-family: var(--font-serif);
+  font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   font-size: 14px;
-  font-weight: 300;
-  color: var(--vellum);
-  line-height: 1.5;
+  font-weight: 400;
+  color: rgba(237, 229, 212, 0.85);
+  line-height: 1.4;
+  letter-spacing: -0.1px;
 }
 
-.ob-notif.dim .ob-notif-text {
-  color: var(--indigo-secondary);
+.ob-notif.dim {
+  opacity: 0.55;
 }
 
 /* Trust line */
