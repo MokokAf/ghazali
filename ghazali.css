@@ -280,6 +280,7 @@ html, body {
   justify-content: space-between;
   align-items: flex-start;
   padding: 40px var(--padding-page) 0;
+  padding-top: calc(40px + env(safe-area-inset-top, 0px));
   margin-bottom: 40px;
 }
 
@@ -1099,6 +1100,7 @@ html, body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   padding: 40px 24px;
+  padding-top: calc(40px + env(safe-area-inset-top, 0px));
   position: relative;
 }
 
@@ -1499,18 +1501,19 @@ html, body {
   50% { opacity: 1; }
 }
 
-/* Date picker */
+/* Date picker — touch-inertia wheel */
 .ob-date-picker {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  height: 260px;
+  gap: 0;
+  height: 220px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  touch-action: none;
 }
 
-/* Subtle highlight for selected row — no borders, just a soft bg */
+/* Subtle highlight band for selected row */
 .ob-date-picker::before {
   content: '';
   position: absolute;
@@ -1518,21 +1521,21 @@ html, body {
   left: 0;
   right: 0;
   transform: translateY(-50%);
-  height: 44px;
+  height: 40px;
   background: rgba(237, 229, 212, 0.04);
   pointer-events: none;
   z-index: 1;
 }
 
-/* Fade edges for depth */
+/* Fade edges */
 .ob-date-picker::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
     var(--indigo-ground) 0%,
-    transparent 25%,
-    transparent 75%,
+    transparent 30%,
+    transparent 70%,
     var(--indigo-ground) 100%
   );
   pointer-events: none;
@@ -1541,19 +1544,20 @@ html, body {
 
 .ob-date-col {
   flex: 1;
-  max-width: 120px;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: y mandatory;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
 }
 
-.ob-date-col::-webkit-scrollbar {
-  display: none;
+.ob-date-col-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  will-change: transform;
 }
 
 .ob-date-item {
-  height: 44px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1561,19 +1565,14 @@ html, body {
   font-size: 16px;
   font-weight: 300;
   color: var(--indigo-muted);
-  scroll-snap-align: center;
-  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   will-change: transform, opacity;
-  transition: none;
+  white-space: nowrap;
 }
 
 .ob-date-item.selected {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--vellum);
 }
 

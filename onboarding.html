@@ -97,10 +97,10 @@
     <div class="onboarding-screen" data-screen="4">
       <div class="ob-question">DATE DE NAISSANCE</div>
 
-      <div class="ob-date-picker" style="margin-top:24px;">
-        <div class="ob-date-col" id="ob-day-col"></div>
-        <div class="ob-date-col" id="ob-month-col"></div>
-        <div class="ob-date-col" id="ob-year-col"></div>
+      <div class="ob-date-picker">
+        <div class="ob-date-col" id="ob-day-col"><div class="ob-date-col-inner"></div></div>
+        <div class="ob-date-col" id="ob-month-col"><div class="ob-date-col-inner"></div></div>
+        <div class="ob-date-col" id="ob-year-col"><div class="ob-date-col-inner"></div></div>
       </div>
 
       <button class="btn-continue" onclick="saveDateOfBirth()" style="margin-top:auto;">
@@ -298,6 +298,9 @@ function goScreen(n) {
   currentScreen = n;
   document.querySelector('.onboarding-content').scrollTop = 0;
 
+  // Save progress so user resumes here if they leave and return
+  localStorage.setItem('ghazali_ob_screen', n);
+
   // Init date picker scroll when screen 4 becomes visible
   if (n === 4 && window._initDatePickerScroll) {
     requestAnimationFrame(() => window._initDatePickerScroll());
@@ -313,6 +316,7 @@ function goScreen(n) {
 
 function finishOnboarding() {
   localStorage.setItem('ghazali_onboarded', '1');
+  localStorage.removeItem('ghazali_ob_screen');
   window.location.href = '/app';
 }
 
@@ -381,143 +385,175 @@ function saveParents() {
 // DATE OF BIRTH + DATE PICKER
 // ========================================
 
-function saveDateOfBirth() {
-  const dayCol = document.getElementById('ob-day-col');
-  const monthCol = document.getElementById('ob-month-col');
-  const yearCol = document.getElementById('ob-year-col');
+// ========================================
+// WHEEL PICKER — touch inertia physics
+// ========================================
+const ITEM_H = 40;
+const wheelInstances = {};
 
-  const day = getSelectedValue(dayCol) || 15;
-  const month = getSelectedValue(monthCol) || 3;
-  const year = getSelectedValue(yearCol) || 1992;
+function WheelColumn(colEl, items, defaultValue) {
+  const inner = colEl.querySelector('.ob-date-col-inner');
+  const colH = colEl.offsetHeight || 220;
+  const centerOffset = (colH / 2) - (ITEM_H / 2);
+  let offset = 0; // current translateY
+  let selectedIndex = 0;
+  const maxIndex = items.length - 1;
+
+  // Build items
+  inner.innerHTML = items.map((item, i) =>
+    `<div class="ob-date-item" data-value="${item.value}" data-index="${i}">${item.label}</div>`
+  ).join('');
+
+  // Set position by index
+  function setIndex(idx, animate) {
+    idx = Math.max(0, Math.min(maxIndex, idx));
+    selectedIndex = idx;
+    offset = centerOffset - idx * ITEM_H;
+    if (animate) {
+      inner.style.transition = 'transform 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
+    } else {
+      inner.style.transition = 'none';
+    }
+    inner.style.transform = `translateY(${offset}px)`;
+    updateVisuals();
+  }
+
+  function updateVisuals() {
+    inner.querySelectorAll('.ob-date-item').forEach((el, i) => {
+      const dist = Math.abs(i - selectedIndex);
+      el.classList.toggle('selected', dist === 0);
+      // Opacity falloff
+      const op = dist === 0 ? 1 : dist === 1 ? 0.5 : dist === 2 ? 0.25 : 0.12;
+      el.style.opacity = op;
+      // Scale
+      const sc = dist === 0 ? 1 : 1 - dist * 0.06;
+      el.style.transform = `scale(${Math.max(sc, 0.8)})`;
+    });
+  }
+
+  // Find index by value
+  const defaultIdx = items.findIndex(it => it.value === defaultValue);
+  setIndex(defaultIdx >= 0 ? defaultIdx : 0, false);
+
+  // Touch handling with inertia
+  let startY, startOffset, lastY, lastTime, velocity;
+  let animFrame;
+
+  colEl.addEventListener('touchstart', (e) => {
+    cancelAnimationFrame(animFrame);
+    inner.style.transition = 'none';
+    const t = e.touches[0];
+    startY = t.clientY;
+    startOffset = offset;
+    lastY = startY;
+    lastTime = Date.now();
+    velocity = 0;
+  }, { passive: true });
+
+  colEl.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const now = Date.now();
+    const dt = now - lastTime;
+    if (dt > 0) velocity = (t.clientY - lastY) / dt;
+    lastY = t.clientY;
+    lastTime = now;
+    offset = startOffset + (t.clientY - startY);
+    // Clamp with rubber band
+    const minOff = centerOffset - maxIndex * ITEM_H;
+    const maxOff = centerOffset;
+    if (offset > maxOff) offset = maxOff + (offset - maxOff) * 0.3;
+    if (offset < minOff) offset = minOff + (offset - minOff) * 0.3;
+    inner.style.transform = `translateY(${offset}px)`;
+  }, { passive: false });
+
+  colEl.addEventListener('touchend', () => {
+    // Inertia
+    const friction = 0.95;
+    function inertia() {
+      if (Math.abs(velocity) > 0.01) {
+        offset += velocity * 16;
+        velocity *= friction;
+        const minOff = centerOffset - maxIndex * ITEM_H;
+        const maxOff = centerOffset;
+        if (offset > maxOff || offset < minOff) velocity *= 0.5; // dampen at edges
+        offset = Math.max(minOff - 20, Math.min(maxOff + 20, offset));
+        inner.style.transform = `translateY(${offset}px)`;
+        animFrame = requestAnimationFrame(inertia);
+      } else {
+        snapToNearest();
+      }
+    }
+    if (Math.abs(velocity) > 0.3) {
+      animFrame = requestAnimationFrame(inertia);
+    } else {
+      snapToNearest();
+    }
+  }, { passive: true });
+
+  // Mouse wheel support (desktop)
+  colEl.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    setIndex(selectedIndex + dir, true);
+  }, { passive: false });
+
+  function snapToNearest() {
+    const idx = Math.round((centerOffset - offset) / ITEM_H);
+    setIndex(idx, true);
+  }
+
+  // Tap to select
+  colEl.addEventListener('click', (e) => {
+    const item = e.target.closest('.ob-date-item');
+    if (!item) return;
+    setIndex(parseInt(item.dataset.index), true);
+  });
+
+  return {
+    getValue: () => items[selectedIndex]?.value,
+    setByValue: (val) => {
+      const idx = items.findIndex(it => it.value === val);
+      if (idx >= 0) setIndex(idx, false);
+    },
+    refresh: () => setIndex(selectedIndex, false),
+  };
+}
+
+function initDatePicker() {
+  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const dayItems = [];
+  for (let i = 1; i <= 31; i++) dayItems.push({ value: i, label: i });
+  const monthItems = months.map((m, i) => ({ value: i + 1, label: m }));
+  const yearItems = [];
+  for (let i = 2010; i >= 1940; i--) yearItems.push({ value: i, label: i });
+
+  wheelInstances.day = new WheelColumn(document.getElementById('ob-day-col'), dayItems, 15);
+  wheelInstances.month = new WheelColumn(document.getElementById('ob-month-col'), monthItems, 3);
+  wheelInstances.year = new WheelColumn(document.getElementById('ob-year-col'), yearItems, 1992);
+
+  window._initDatePickerScroll = function() {
+    wheelInstances.day.refresh();
+    wheelInstances.month.refresh();
+    wheelInstances.year.refresh();
+  };
+}
+
+initDatePicker();
+
+function saveDateOfBirth() {
+  const day = wheelInstances.day?.getValue() || 15;
+  const month = wheelInstances.month?.getValue() || 3;
+  const year = wheelInstances.year?.getValue() || 1992;
 
   const iso = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
   user.date_of_birth = iso;
   localStorage.setItem('ghazali_user', JSON.stringify(user));
 
-  // Compute and show hijri date
   computeHijriReveal(year, month, day, user.gender || 'f');
   goScreen(5);
 }
-
-function getSelectedValue(col) {
-  const sel = col.querySelector('.ob-date-item.selected:not(.ob-date-spacer)');
-  return sel ? parseInt(sel.dataset.value) : null;
-}
-
-function initDatePicker() {
-  const dayCol = document.getElementById('ob-day-col');
-  const monthCol = document.getElementById('ob-month-col');
-  const yearCol = document.getElementById('ob-year-col');
-  const ITEM_H = 44;
-  const months = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-
-  function buildCol(col, items) {
-    const padCount = 3;
-    let html = '';
-    for (let p = 0; p < padCount; p++) {
-      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
-    }
-    items.forEach(item => {
-      html += `<div class="ob-date-item" data-value="${item.value}">${item.label}</div>`;
-    });
-    for (let p = 0; p < padCount; p++) {
-      html += '<div class="ob-date-item ob-date-spacer" aria-hidden="true">&nbsp;</div>';
-    }
-    col.innerHTML = html;
-  }
-
-  const days = [];
-  for (let i = 1; i <= 31; i++) days.push({ value: i, label: i });
-  buildCol(dayCol, days);
-
-  const monthItems = months.map((m, i) => ({ value: i + 1, label: m }));
-  buildCol(monthCol, monthItems);
-
-  const years = [];
-  for (let i = 2010; i >= 1940; i--) years.push({ value: i, label: i });
-  buildCol(yearCol, years);
-
-  function updateSelection(col) {
-    const colRect = col.getBoundingClientRect();
-    const centerY = colRect.top + colRect.height / 2;
-    const radius = colRect.height / 2; // virtual drum radius
-    let closest = null;
-    let closestDist = Infinity;
-
-    col.querySelectorAll('.ob-date-item').forEach(item => {
-      const rect = item.getBoundingClientRect();
-      const itemCenter = rect.top + rect.height / 2;
-      const dist = itemCenter - centerY; // signed distance from center
-      const absDist = Math.abs(dist);
-
-      if (!item.classList.contains('ob-date-spacer') && absDist < closestDist) {
-        closestDist = absDist;
-        closest = item;
-      }
-
-      // 3D barrel rotation: map distance to rotation angle
-      const ratio = Math.min(Math.max(dist / radius, -1), 1);
-      const angle = ratio * 60; // max 60deg rotation at edges
-      const scale = 1 - Math.abs(ratio) * 0.25; // slight scale-down at edges
-      const opacity = 1 - Math.abs(ratio) * 0.7; // fade at edges
-      const translateZ = -Math.abs(ratio) * 20; // push back into depth
-
-      item.style.transform = `rotateX(${-angle}deg) scale(${scale}) translateZ(${translateZ}px)`;
-      item.style.opacity = Math.max(0.15, opacity);
-    });
-
-    col.querySelectorAll('.ob-date-item').forEach(i => i.classList.remove('selected'));
-    if (closest) closest.classList.add('selected');
-  }
-
-  function attachScroll(col) {
-    let scrollTimer;
-    col.addEventListener('scroll', () => {
-      updateSelection(col);
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const selected = col.querySelector('.ob-date-item.selected:not(.ob-date-spacer)');
-        if (selected) {
-          const colRect = col.getBoundingClientRect();
-          const itemRect = selected.getBoundingClientRect();
-          const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
-          col.scrollBy({ top: offset, behavior: 'smooth' });
-        }
-      }, 80);
-    }, { passive: true });
-
-    col.addEventListener('click', (e) => {
-      const item = e.target.closest('.ob-date-item:not(.ob-date-spacer)');
-      if (!item) return;
-      const colRect = col.getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
-      const offset = itemRect.top - colRect.top - (colRect.height / 2 - ITEM_H / 2);
-      col.scrollBy({ top: offset, behavior: 'smooth' });
-    });
-  }
-
-  attachScroll(dayCol);
-  attachScroll(monthCol);
-  attachScroll(yearCol);
-
-  function scrollToValue(col, value) {
-    const target = col.querySelector(`[data-value="${value}"]`);
-    if (!target) return;
-    const idx = Array.from(col.querySelectorAll('.ob-date-item')).indexOf(target);
-    col.scrollTop = idx * ITEM_H - (col.clientHeight / 2 - ITEM_H / 2);
-    updateSelection(col);
-  }
-
-  window._initDatePickerScroll = function() {
-    scrollToValue(dayCol, 15);
-    scrollToValue(monthCol, 3);
-    scrollToValue(yearCol, 1992);
-  };
-  requestAnimationFrame(() => window._initDatePickerScroll());
-}
-
-initDatePicker();
 
 // ========================================
 // HIJRI CONVERSION
@@ -727,6 +763,12 @@ document.getElementById('btn-email-retry').addEventListener('click', () => {
 // Register service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// Restore onboarding progress (skip loading screen 6 — it auto-advances)
+const savedScreen = parseInt(localStorage.getItem('ghazali_ob_screen'));
+if (savedScreen && savedScreen > 1 && savedScreen !== 6 && savedScreen <= 8) {
+  goScreen(savedScreen);
 }
 
 // Init auth (checks session, may redirect)

@@ -35,6 +35,13 @@
 
 <div class="app-shell">
 
+  <!-- Banner for non-standalone users -->
+  <div id="pwa-banner" style="display:none; padding:12px 20px; padding-top:calc(12px + env(safe-area-inset-top, 0px)); background:rgba(232,198,93,0.08); border-bottom:0.5px solid rgba(232,198,93,0.2); text-align:center;">
+    <p style="font-family:var(--font-serif); font-size:13px; font-weight:300; color:var(--gold-glow); margin-bottom:4px;">Ouvre Ghazali depuis ton écran d'accueil</p>
+    <p style="font-family:var(--font-mono); font-size:8px; color:var(--indigo-secondary); letter-spacing:1px;">POUR UNE MEILLEURE EXPÉRIENCE</p>
+    <button onclick="document.getElementById('pwa-banner').style.display='none'; localStorage.setItem('ghazali_pwa_dismissed','1');" style="position:absolute; top:8px; right:12px; background:none; border:none; color:var(--indigo-muted); font-size:16px; cursor:pointer; padding:4px;">✕</button>
+  </div>
+
   <!-- ========== SCROLLABLE CONTENT ========== -->
   <main class="app-content">
 
@@ -438,6 +445,18 @@ loadDailyContent();
 // ========================================
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ========================================
+// PWA BANNER (non-standalone users)
+// ========================================
+const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+if (!isStandalone && !localStorage.getItem('ghazali_pwa_dismissed')) {
+  const ua = navigator.userAgent || '';
+  // Only show on mobile Safari (iPhone/iPad) — not desktop browsers
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    document.getElementById('pwa-banner').style.display = 'block';
+  }
 }
 </script>
 
