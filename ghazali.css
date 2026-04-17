@@ -1500,7 +1500,7 @@ html, body {
   50% { opacity: 1; }
 }
 
-/* Date picker — touch-inertia wheel */
+/* Date picker — native scroll-snap wheel */
 .ob-date-picker {
   display: flex;
   justify-content: center;
@@ -1509,7 +1509,6 @@ html, body {
   overflow: hidden;
   position: relative;
   margin: 20px 0;
-  touch-action: none;
 }
 
 /* Subtle highlight band for selected row */
@@ -1526,7 +1525,7 @@ html, body {
   z-index: 1;
 }
 
-/* Fade edges */
+/* Fade edges — mask that lets the column fade into the background */
 .ob-date-picker::after {
   content: '';
   position: absolute;
@@ -1544,15 +1543,26 @@ html, body {
 .ob-date-col {
   flex: 1;
   position: relative;
-  overflow: hidden;
-  touch-action: none;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.ob-date-col::-webkit-scrollbar {
+  display: none;
 }
 
 .ob-date-col-inner {
-  position: absolute;
-  left: 0;
-  right: 0;
-  will-change: transform;
+  display: block;
+}
+
+.ob-date-spacer {
+  height: 90px;
+  pointer-events: none;
 }
 
 .ob-date-item {
@@ -1566,8 +1576,9 @@ html, body {
   color: var(--indigo-muted);
   user-select: none;
   -webkit-user-select: none;
-  will-change: transform, opacity;
   white-space: nowrap;
+  scroll-snap-align: center;
+  transition: color 0.2s ease, font-size 0.2s ease;
 }
 
 .ob-date-item.selected {

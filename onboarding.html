@@ -386,150 +386,89 @@ function saveParents() {
 // ========================================
 
 // ========================================
-// WHEEL PICKER — touch inertia physics
+// WHEEL PICKER — native scroll-snap
 // ========================================
 const ITEM_H = 40;
 const wheelInstances = {};
 
 function WheelColumn(colEl, items) {
   const inner = colEl.querySelector('.ob-date-col-inner');
-  let colH = 220;
-  let centerOffset = (colH / 2) - (ITEM_H / 2);
-  let offset = 0;
-  let selectedIndex = 0;
   const maxIndex = items.length - 1;
-  let initialized = false;
+  let selectedIndex = 0;
+  let rafPending = false;
+  let idleTimer = null;
 
-  // Build items
-  inner.innerHTML = items.map((item, i) =>
-    `<div class="ob-date-item" data-value="${item.value}" data-index="${i}">${item.label}</div>`
-  ).join('');
+  // Build list: top spacer + items + bottom spacer (spacers let first/last item center-snap)
+  inner.innerHTML =
+    '<div class="ob-date-spacer"></div>' +
+    items.map((item, i) =>
+      `<div class="ob-date-item" data-value="${item.value}" data-index="${i}">${item.label}</div>`
+    ).join('') +
+    '<div class="ob-date-spacer"></div>';
 
-  function recalc() {
-    const h = colEl.offsetHeight;
-    if (h > 0) {
-      colH = h;
-      centerOffset = (colH / 2) - (ITEM_H / 2);
+  const itemEls = inner.querySelectorAll('.ob-date-item');
+  let selectedEl = null;
+
+  function markSelected(idx) {
+    if (selectedEl) selectedEl.classList.remove('selected');
+    selectedEl = itemEls[idx] || null;
+    if (selectedEl) selectedEl.classList.add('selected');
+  }
+
+  function currentIndex() {
+    const idx = Math.round(colEl.scrollTop / ITEM_H);
+    return Math.max(0, Math.min(maxIndex, idx));
+  }
+
+  function commit() {
+    const idx = currentIndex();
+    if (idx !== selectedIndex) {
+      selectedIndex = idx;
+      markSelected(idx);
+      if (navigator.vibrate) navigator.vibrate(6);
     }
   }
 
-  function setIndex(idx, animate) {
-    idx = Math.max(0, Math.min(maxIndex, idx));
-    selectedIndex = idx;
-    offset = centerOffset - idx * ITEM_H;
-    if (animate) {
-      inner.style.transition = 'transform 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
-    } else {
-      inner.style.transition = 'none';
+  colEl.addEventListener('scroll', () => {
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(() => {
+        rafPending = false;
+        commit();
+      });
     }
-    inner.style.transform = `translateY(${offset}px)`;
-    updateVisuals();
-  }
-
-  function updateVisuals() {
-    inner.querySelectorAll('.ob-date-item').forEach((el, i) => {
-      const dist = Math.abs(i - selectedIndex);
-      el.classList.toggle('selected', dist === 0);
-      const op = dist === 0 ? 1 : dist === 1 ? 0.5 : dist === 2 ? 0.25 : 0.12;
-      el.style.opacity = op;
-      const sc = dist === 0 ? 1 : 1 - dist * 0.06;
-      el.style.transform = `scale(${Math.max(sc, 0.8)})`;
-    });
-  }
-
-  // Touch handling
-  let startY, startOffset, lastY, lastTime, velocity;
-  let animFrame;
-
-  colEl.addEventListener('touchstart', (e) => {
-    cancelAnimationFrame(animFrame);
-    inner.style.transition = 'none';
-    const t = e.touches[0];
-    startY = t.clientY;
-    startOffset = offset;
-    lastY = startY;
-    lastTime = Date.now();
-    velocity = 0;
+    // Fallback settle for browsers without native `scrollend`
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(commit, 150);
   }, { passive: true });
 
-  colEl.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    const t = e.touches[0];
-    const now = Date.now();
-    const dt = now - lastTime;
-    if (dt > 0) velocity = (t.clientY - lastY) / dt;
-    lastY = t.clientY;
-    lastTime = now;
-    offset = startOffset + (t.clientY - startY);
-    const minOff = centerOffset - maxIndex * ITEM_H;
-    const maxOff = centerOffset;
-    if (offset > maxOff) offset = maxOff + (offset - maxOff) * 0.3;
-    if (offset < minOff) offset = minOff + (offset - minOff) * 0.3;
-    inner.style.transform = `translateY(${offset}px)`;
-    // Live update visuals during drag
-    const approxIdx = Math.round((centerOffset - offset) / ITEM_H);
-    const clampedIdx = Math.max(0, Math.min(maxIndex, approxIdx));
-    if (clampedIdx !== selectedIndex) {
-      selectedIndex = clampedIdx;
-      updateVisuals();
-    }
-  }, { passive: false });
-
-  colEl.addEventListener('touchend', () => {
-    const friction = 0.95;
-    function inertiaStep() {
-      if (Math.abs(velocity) > 0.01) {
-        offset += velocity * 16;
-        velocity *= friction;
-        const minOff = centerOffset - maxIndex * ITEM_H;
-        const maxOff = centerOffset;
-        if (offset > maxOff || offset < minOff) velocity *= 0.5;
-        offset = Math.max(minOff - 20, Math.min(maxOff + 20, offset));
-        inner.style.transform = `translateY(${offset}px)`;
-        const approxIdx = Math.round((centerOffset - offset) / ITEM_H);
-        const clampedIdx = Math.max(0, Math.min(maxIndex, approxIdx));
-        if (clampedIdx !== selectedIndex) {
-          selectedIndex = clampedIdx;
-          updateVisuals();
-        }
-        animFrame = requestAnimationFrame(inertiaStep);
-      } else {
-        snapToNearest();
-      }
-    }
-    if (Math.abs(velocity) > 0.3) {
-      animFrame = requestAnimationFrame(inertiaStep);
-    } else {
-      snapToNearest();
-    }
-  }, { passive: true });
-
-  colEl.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const dir = e.deltaY > 0 ? 1 : -1;
-    setIndex(selectedIndex + dir, true);
-  }, { passive: false });
-
-  function snapToNearest() {
-    const idx = Math.round((centerOffset - offset) / ITEM_H);
-    setIndex(idx, true);
-  }
+  colEl.addEventListener('scrollend', commit);
 
   colEl.addEventListener('click', (e) => {
     const item = e.target.closest('.ob-date-item');
     if (!item) return;
-    setIndex(parseInt(item.dataset.index), true);
+    const idx = parseInt(item.dataset.index, 10);
+    colEl.scrollTo({ top: idx * ITEM_H, behavior: 'smooth' });
   });
+
+  function scrollToIndex(idx, smooth) {
+    idx = Math.max(0, Math.min(maxIndex, idx));
+    selectedIndex = idx;
+    markSelected(idx);
+    colEl.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'auto' });
+  }
 
   return {
     getValue: () => items[selectedIndex]?.value,
     init: (defaultVal) => {
-      recalc();
       const idx = items.findIndex(it => it.value === defaultVal);
-      setIndex(idx >= 0 ? idx : 0, false);
-      initialized = true;
+      scrollToIndex(idx >= 0 ? idx : 0, false);
     },
-    refresh: () => { recalc(); setIndex(selectedIndex, false); },
+    refresh: () => {
+      // When the screen becomes visible again, snap scroll position back to the selected index
+      colEl.scrollTop = selectedIndex * ITEM_H;
+      markSelected(selectedIndex);
+    },
   };
 }
 
