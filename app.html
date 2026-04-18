@@ -287,6 +287,81 @@ document.getElementById('dream-submit').addEventListener('click', () => {
   document.getElementById('dream-response').classList.add('visible');
 });
 
+// --- Dream follow-up prompts: populate input with the question ---
+document.getElementById('dream-followups').addEventListener('click', (e) => {
+  const btn = e.target.closest('.dream-followup');
+  if (!btn) return;
+  const q = (btn.querySelector('span')?.textContent || btn.textContent).trim();
+  const input = document.getElementById('dream-input');
+  input.value = q;
+  input.focus();
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+// --- Accueil → Mushārata shortcut ---
+document.getElementById('musharata-btn').addEventListener('click', () => {
+  document.querySelector('.nav-item[data-tab="musharata"]')?.click();
+});
+
+// --- Subscribe CTA (no subscription system yet — acknowledge) ---
+document.querySelectorAll('.btn-subscribe').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const span = btn.querySelector('span');
+    if (!span) return;
+    const original = span.textContent;
+    span.textContent = 'BIENTÔT DISPONIBLE';
+    btn.classList.add('disabled');
+    setTimeout(() => {
+      span.textContent = original;
+      btn.classList.remove('disabled');
+    }, 2500);
+  });
+});
+
+// --- Profil settings rows — wired once at init, state checked at click time ---
+async function handleSettingNotifications() {
+  if (!('Notification' in window)) {
+    alert("Les notifications ne sont pas supportées sur ce navigateur.");
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    alert("Les notifications sont déjà activées.");
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    alert("Les notifications ont été refusées. Active-les dans les réglages de ton navigateur.");
+    return;
+  }
+  try {
+    const result = await Notification.requestPermission();
+    if (result === 'granted') alert("Notifications activées.");
+  } catch (e) {}
+}
+
+function handleSettingSubscription() {
+  document.querySelector('.nav-item[data-tab="musharata"]')?.click();
+}
+
+async function handleSettingAuthToggle() {
+  // Re-read auth state at click time so the handler works regardless of when initAuthSession completes
+  if (sbClient && accessToken) {
+    try { await sbClient.auth.signOut(); } catch (e) {}
+    accessToken = null;
+  }
+  window.location.href = '/onboarding';
+}
+
+document.querySelectorAll('.profil-setting').forEach(el => {
+  const label = el.querySelector('.profil-setting-label')?.textContent.trim() || '';
+  if (label.includes('NOTIFICATIONS')) {
+    el.addEventListener('click', handleSettingNotifications);
+  } else if (label.includes('ABONNEMENT')) {
+    el.addEventListener('click', handleSettingSubscription);
+  } else if (label.includes('CONNECTER')) {
+    el.addEventListener('click', handleSettingAuthToggle);
+  }
+});
+
 // ========================================
 // AUTH — Supabase Session Management
 // ========================================
@@ -313,23 +388,15 @@ function authHeaders() {
 }
 
 function updateProfileUI(user) {
+  // Only swaps the label text. The click handler is bound once at init
+  // (handleSettingAuthToggle) and reads auth state at click time, so the
+  // button works even before initAuthSession resolves.
   const settingsEl = document.querySelector('.profil-settings');
   if (!settingsEl) return;
 
-  settingsEl.querySelectorAll('.profil-setting').forEach(el => {
-    const label = el.querySelector('.profil-setting-label');
-    if (label && label.textContent.includes('CONNECTER')) {
-      if (user) {
-        label.textContent = 'SE DÉCONNECTER';
-        el.onclick = async () => {
-          await sbClient.auth.signOut();
-          accessToken = null;
-          window.location.href = '/onboarding';
-        };
-      } else {
-        label.textContent = 'SE CONNECTER';
-        el.onclick = () => { window.location.href = '/onboarding'; };
-      }
+  settingsEl.querySelectorAll('.profil-setting .profil-setting-label').forEach(label => {
+    if (label.textContent.includes('CONNECTER')) {
+      label.textContent = user ? 'SE DÉCONNECTER' : 'SE CONNECTER';
     }
   });
 }
