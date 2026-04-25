@@ -1220,6 +1220,13 @@ html, body {
   animation: nameMeaningBloom 900ms cubic-bezier(0.17, 0.84, 0.24, 1) both;
 }
 
+.ob-name-meaning.error {
+  border-color: rgba(211, 169, 93, 0.24);
+  background:
+    linear-gradient(135deg, rgba(211, 169, 93, 0.08), rgba(237, 229, 212, 0.025)),
+    rgba(20, 36, 54, 0.56);
+}
+
 .ob-name-meaning::before {
   content: '';
   position: absolute;

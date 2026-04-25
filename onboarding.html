@@ -351,6 +351,15 @@ function detectGender(name) {
   return 'f'; // default feminine (majority of target audience)
 }
 
+const NAME_MEANING_CACHE_KEY = 'ghazali_name_meanings_v2';
+const GENERIC_NAME_MEANING_MARKERS = [
+  'porte une douceur discrète',
+  'présence qui cherche le vrai',
+  'ce qui se cache déjà en toi',
+];
+let nameMeaningReadyToContinue = false;
+let nameMeaningCurrentKey = '';
+
 function saveName() {
   revealNameMeaning();
 }
@@ -367,26 +376,51 @@ function normalizeNameKey(name) {
 
 function getNameMeaningCache() {
   try {
-    return JSON.parse(localStorage.getItem('ghazali_name_meanings') || '{}');
+    return JSON.parse(localStorage.getItem(NAME_MEANING_CACHE_KEY) || '{}');
   } catch (e) {
     return {};
   }
 }
 
+function isGenericNameMeaning(meaning) {
+  const normalized = String(meaning || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return GENERIC_NAME_MEANING_MARKERS.some(marker => {
+    const cleanMarker = marker
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+    return normalized.includes(cleanMarker);
+  });
+}
+
 function setNameMeaningCache(key, meaning) {
+  if (!meaning || isGenericNameMeaning(meaning)) return;
   const cache = getNameMeaningCache();
   cache[key] = {
     meaning,
     created_at: new Date().toISOString(),
   };
-  localStorage.setItem('ghazali_name_meanings', JSON.stringify(cache));
+  const entries = Object.entries(cache)
+    .sort((a, b) => String(b[1].created_at).localeCompare(String(a[1].created_at)))
+    .slice(0, 100);
+  localStorage.setItem(NAME_MEANING_CACHE_KEY, JSON.stringify(Object.fromEntries(entries)));
 }
 
-function renderNameMeaning(meaning) {
+function removeNameMeaningCache(key) {
+  const cache = getNameMeaningCache();
+  delete cache[key];
+  localStorage.setItem(NAME_MEANING_CACHE_KEY, JSON.stringify(cache));
+}
+
+function renderNameMeaning(meaning, state = 'success') {
   const card = document.getElementById('ob-name-meaning');
   const text = document.getElementById('ob-name-meaning-text');
   text.textContent = meaning;
   card.classList.remove('loading');
+  card.classList.toggle('error', state === 'error');
   card.classList.remove('visible');
   void card.offsetWidth;
   card.classList.add('visible');
@@ -403,47 +437,51 @@ async function revealNameMeaning() {
 
   const gender = detectGender(name);
   const key = normalizeNameKey(name);
-  const existingUser = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
   const cached = getNameMeaningCache()[key]?.meaning;
 
-  if (existingUser.name === name && existingUser.name_meaning && card.classList.contains('visible')) {
+  if (nameMeaningReadyToContinue && nameMeaningCurrentKey === key && card.classList.contains('visible')) {
     goScreen(4);
     return;
   }
 
   btn.disabled = true;
   btnText.textContent = 'LECTURE DU PRÉNOM...';
+  card.classList.remove('error');
   card.classList.add('visible', 'loading');
   meaningText.textContent = '';
+  nameMeaningReadyToContinue = false;
+  nameMeaningCurrentKey = key;
 
   try {
-    let meaning = cached;
+    let meaning = cached && !isGenericNameMeaning(cached) ? cached : '';
+    if (cached && !meaning) removeNameMeaningCache(key);
+
     if (!meaning) {
       const res = await fetch('/api/name-meaning', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        meaning = data.meaning;
-      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.meaning) throw new Error(data.error || 'Name meaning unavailable');
+      meaning = data.meaning;
     }
 
-    if (!meaning) {
-      meaning = `${name} porte une douceur discrète: une présence qui cherche le vrai sans perdre sa délicatesse. Que ce prénom soit pour toi un rappel de revenir à ce qui apaise, d'avancer avec intention, et de laisser Allah éclairer ce qui se cache déjà en toi.`;
+    if (!meaning || isGenericNameMeaning(meaning)) {
+      removeNameMeaningCache(key);
+      throw new Error('Generic name meaning rejected');
     }
 
     setNameMeaningCache(key, meaning);
     localStorage.setItem('ghazali_user', JSON.stringify({ name, gender, name_meaning: meaning }));
     renderNameMeaning(meaning);
+    nameMeaningReadyToContinue = true;
     btnText.textContent = 'CONTINUER';
   } catch (e) {
     console.error('Name meaning failed:', e);
-    const meaning = `${name} porte une douceur discrète: une présence qui cherche le vrai sans perdre sa délicatesse. Que ce prénom soit pour toi un rappel de revenir à ce qui apaise, d'avancer avec intention, et de laisser Allah éclairer ce qui se cache déjà en toi.`;
-    setNameMeaningCache(key, meaning);
-    localStorage.setItem('ghazali_user', JSON.stringify({ name, gender, name_meaning: meaning }));
-    renderNameMeaning(meaning);
+    localStorage.setItem('ghazali_user', JSON.stringify({ name, gender, name_meaning_status: 'unavailable' }));
+    renderNameMeaning("Je n'arrive pas à lire l'origine de ton prénom pour l'instant. Tu peux continuer, et Ahlam le reprendra avec toi plus tard.", 'error');
+    nameMeaningReadyToContinue = true;
     btnText.textContent = 'CONTINUER';
   } finally {
     btn.disabled = false;

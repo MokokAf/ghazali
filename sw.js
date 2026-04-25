@@ -2,7 +2,7 @@
 // GHAZALI — Service Worker
 // ============================================
 
-const CACHE_NAME = 'ghazali-v12';
+const CACHE_NAME = 'ghazali-v13';
 const SHELL_ASSETS = [
   '/app.html',
   '/onboarding.html',
