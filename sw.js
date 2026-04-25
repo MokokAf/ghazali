@@ -2,7 +2,7 @@
 // GHAZALI — Service Worker
 // ============================================
 
-const CACHE_NAME = 'ghazali-v1';
+const CACHE_NAME = 'ghazali-v12';
 const SHELL_ASSETS = [
   '/app.html',
   '/onboarding.html',
@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
   '/apple-touch-icon.png',
   '/favicon.ico',
   '/icon.svg',
+  '/notification-logo.png',
   '/data/daily-content.json',
 ];
 

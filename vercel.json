@@ -17,6 +17,9 @@
     },
     "api/config.js": {
       "maxDuration": 5
+    },
+    "api/name-meaning.js": {
+      "maxDuration": 15
     }
   },
   "rewrites": [
