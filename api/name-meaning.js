@@ -68,20 +68,24 @@ async function setPersistedMeaning(key, meaning) {
   await writeFile(TMP_CACHE_PATH, JSON.stringify(Object.fromEntries(entries)), 'utf8');
 }
 
-function buildNameMeaningPrompt(name) {
+function buildNameMeaningSystemPrompt(name) {
+  return [
+    'Tu écris pour Ghazali, une PWA spirituelle islamique en français.',
+    'Explique le prénom donné avec chaleur, simplicité et profondeur personnelle.',
+    'Donne le sens, la racine, l’origine linguistique, ou une association culturelle connue quand elle existe.',
+    'Si le sens exact est incertain, dis-le clairement puis propose une résonance douce sans inventer de certitude.',
+    'Ne prétends jamais connaître avec certitude une étymologie incertaine.',
+    'Ne mentionne jamais IA, modèle, OpenAI, Anthropic, Claude, système, prompt ou génération.',
+    `Commence par le prénom "${name}".`,
+    'Réponds en un seul court paragraphe de 45 à 75 mots.',
+  ].join(' ');
+}
+
+function buildOpenAIInput(name) {
   return [
     {
       role: 'system',
-      content: [
-        'Tu écris pour Ghazali, une PWA spirituelle islamique en français.',
-        'Explique le prénom donné avec chaleur, simplicité et profondeur personnelle.',
-        'Donne le sens, la racine, l’origine linguistique, ou une association culturelle connue quand elle existe.',
-        'Si le sens exact est incertain, dis-le clairement puis propose une résonance douce sans inventer de certitude.',
-        'Ne prétends jamais connaître avec certitude une étymologie incertaine.',
-        'Ne mentionne jamais IA, modèle, OpenAI, système, prompt ou génération.',
-        `Commence par le prénom "${name}".`,
-        'Réponds en un seul court paragraphe de 45 à 75 mots.',
-      ].join(' '),
+      content: buildNameMeaningSystemPrompt(name),
     },
     {
       role: 'user',
@@ -90,7 +94,14 @@ function buildNameMeaningPrompt(name) {
   ];
 }
 
-async function generateMeaning(name, apiKey) {
+function extractAnthropicText(data) {
+  return (data?.content || [])
+    .filter(part => part?.type === 'text' && part.text)
+    .map(part => part.text)
+    .join(' ');
+}
+
+async function generateMeaningWithOpenAI(name, apiKey) {
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -101,7 +112,7 @@ async function generateMeaning(name, apiKey) {
       model: process.env.OPENAI_NAME_MODEL || 'gpt-4.1-mini',
       max_output_tokens: 210,
       temperature: 0.45,
-      input: buildNameMeaningPrompt(name),
+      input: buildOpenAIInput(name),
     }),
   });
 
@@ -114,6 +125,59 @@ async function generateMeaning(name, apiKey) {
   const meaning = cleanGeneratedText(extractResponseText(data));
   if (!meaning) throw new Error('OpenAI returned an empty name meaning');
   return meaning;
+}
+
+async function generateMeaningWithAnthropic(name, apiKey) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: process.env.ANTHROPIC_NAME_MODEL || process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6',
+      max_tokens: 210,
+      temperature: 0.45,
+      system: buildNameMeaningSystemPrompt(name),
+      messages: [
+        {
+          role: 'user',
+          content: `Prénom à interpréter: ${name}`,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Anthropic name meaning failed: ${response.status} ${text}`);
+  }
+
+  const data = await response.json();
+  const meaning = cleanGeneratedText(extractAnthropicText(data));
+  if (!meaning) throw new Error('Anthropic returned an empty name meaning');
+  return meaning;
+}
+
+async function generateMeaning(name) {
+  const openaiKey = process.env.OPENAI_API_KEY;
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+
+  if (openaiKey) {
+    try {
+      return await generateMeaningWithOpenAI(name, openaiKey);
+    } catch (err) {
+      if (!anthropicKey) throw err;
+      console.error('OpenAI name meaning failed, trying Anthropic fallback:', err);
+    }
+  }
+
+  if (anthropicKey) {
+    return generateMeaningWithAnthropic(name, anthropicKey);
+  }
+
+  throw new Error('No name meaning provider configured');
 }
 
 export default async function handler(req, res) {
@@ -137,16 +201,15 @@ export default async function handler(req, res) {
       return res.json({ meaning: cachedMeaning, cached: true });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
+    if (!process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY) {
       return res.status(503).json({ error: 'Name meaning unavailable' });
     }
 
     let meaning = '';
     try {
-      meaning = await generateMeaning(name, apiKey);
+      meaning = await generateMeaning(name);
     } catch (err) {
-      console.error('OpenAI name meaning failed:', err);
+      console.error('Name meaning provider failed:', err);
       return res.status(502).json({ error: 'Name meaning unavailable' });
     }
 

@@ -2,6 +2,8 @@
 const ALLOWED_ORIGINS = [
   'https://ghazali.com',
   'https://www.ghazali.com',
+  'https://ghazali.app',
+  'https://www.ghazali.app',
   'http://localhost:8080',
   'http://localhost:3000',
   'null',
