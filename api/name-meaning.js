@@ -1,17 +1,12 @@
 import { setCors } from './_cors.js';
 import { readFile, writeFile } from 'node:fs/promises';
 
-const cache = globalThis.__ghazaliNameMeaningCache || new Map();
-globalThis.__ghazaliNameMeaningCache = cache;
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
+const MEMORY_CACHE_KEY = `__ghazaliNameMeaningCache_${CACHE_VERSION}`;
+const cache = globalThis[MEMORY_CACHE_KEY] || new Map();
+globalThis[MEMORY_CACHE_KEY] = cache;
 const TMP_CACHE_PATH = `/tmp/ghazali-name-meanings-${CACHE_VERSION}.json`;
 const MAX_PERSISTED_NAMES = 1000;
-const GENERIC_FALLBACK_MARKERS = [
-  'porte une douceur discrete',
-  'presence qui cherche le vrai',
-  'ce qui se cache deja en toi',
-  'allah eclairer',
-];
 
 function normalizeName(name) {
   return name
@@ -29,29 +24,6 @@ function cleanGeneratedText(text) {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 700);
-}
-
-function normalizeText(text) {
-  return String(text || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function isGenericFallback(text) {
-  const normalized = normalizeText(text);
-  return GENERIC_FALLBACK_MARKERS.some((marker) => normalized.includes(marker));
-}
-
-function isUsableMeaning(text, name) {
-  const meaning = cleanGeneratedText(text);
-  if (!meaning || isGenericFallback(meaning)) return false;
-
-  const normalizedMeaning = normalizeText(meaning);
-  const normalizedName = normalizeText(name).split(' ')[0];
-  return normalizedName.length < 2 || normalizedMeaning.includes(normalizedName);
 }
 
 function extractResponseText(data) {
@@ -78,11 +50,8 @@ async function readPersistedCache() {
 async function getPersistedMeaning(key) {
   const persisted = await readPersistedCache();
   const meaning = persisted[key]?.meaning;
-  if (meaning && !isGenericFallback(meaning)) {
-    cache.set(key, meaning);
-    return meaning;
-  }
-  return null;
+  if (meaning) cache.set(key, meaning);
+  return meaning || null;
 }
 
 async function setPersistedMeaning(key, meaning) {
@@ -99,23 +68,19 @@ async function setPersistedMeaning(key, meaning) {
   await writeFile(TMP_CACHE_PATH, JSON.stringify(Object.fromEntries(entries)), 'utf8');
 }
 
-function buildNameMeaningPrompt(name, strict = false) {
+function buildNameMeaningPrompt(name) {
   return [
     {
       role: 'system',
       content: [
         'Tu écris pour Ghazali, une PWA spirituelle islamique en français.',
-        'Ta mission est d’expliquer le sens réel du prénom donné, pas de produire une méditation générique.',
-        'Réponds avec chaleur, délicatesse et profondeur personnelle, mais ancre toujours le texte dans le prénom lui-même.',
-        'Donne au moins un point concret: sens, racine, origine linguistique, référence culturelle ou association connue.',
-        'Si l’étymologie est incertaine, dis-le simplement, puis explique une résonance plausible liée au son, à l’usage ou aux associations connues du prénom.',
-        'Évite les phrases qui pourraient convenir à n’importe quel prénom.',
+        'Explique le prénom donné avec chaleur, simplicité et profondeur personnelle.',
+        'Donne le sens, la racine, l’origine linguistique, ou une association culturelle connue quand elle existe.',
+        'Si le sens exact est incertain, dis-le clairement puis propose une résonance douce sans inventer de certitude.',
         'Ne prétends jamais connaître avec certitude une étymologie incertaine.',
         'Ne mentionne jamais IA, modèle, OpenAI, système, prompt ou génération.',
-        strict
-          ? 'Réécris de façon plus spécifique: commence par le prénom, puis donne son sens ou son origine avant la touche spirituelle.'
-          : 'Commence par le prénom lui-même.',
-        'Réponds en un seul court paragraphe de 45 à 70 mots.',
+        `Commence par le prénom "${name}".`,
+        'Réponds en un seul court paragraphe de 45 à 75 mots.',
       ].join(' '),
     },
     {
@@ -125,7 +90,7 @@ function buildNameMeaningPrompt(name, strict = false) {
   ];
 }
 
-async function generateMeaning(name, apiKey, strict = false) {
+async function generateMeaning(name, apiKey) {
   const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -135,8 +100,8 @@ async function generateMeaning(name, apiKey, strict = false) {
     body: JSON.stringify({
       model: process.env.OPENAI_NAME_MODEL || 'gpt-4.1-mini',
       max_output_tokens: 210,
-      temperature: strict ? 0.35 : 0.45,
-      input: buildNameMeaningPrompt(name, strict),
+      temperature: 0.45,
+      input: buildNameMeaningPrompt(name),
     }),
   });
 
@@ -146,7 +111,9 @@ async function generateMeaning(name, apiKey, strict = false) {
   }
 
   const data = await response.json();
-  return cleanGeneratedText(extractResponseText(data));
+  const meaning = cleanGeneratedText(extractResponseText(data));
+  if (!meaning) throw new Error('OpenAI returned an empty name meaning');
+  return meaning;
 }
 
 export default async function handler(req, res) {
@@ -165,11 +132,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid name' });
     }
 
-    const memoryMeaning = cache.get(key);
-    const cachedMeaning = !isGenericFallback(memoryMeaning) && memoryMeaning
-      ? memoryMeaning
-      : await getPersistedMeaning(key);
-
+    const cachedMeaning = cache.get(key) || await getPersistedMeaning(key);
     if (cachedMeaning) {
       return res.json({ meaning: cachedMeaning, cached: true });
     }
@@ -179,19 +142,12 @@ export default async function handler(req, res) {
       return res.status(503).json({ error: 'Name meaning unavailable' });
     }
 
-    let meaning;
+    let meaning = '';
     try {
       meaning = await generateMeaning(name, apiKey);
-      if (!isUsableMeaning(meaning, name)) {
-        meaning = await generateMeaning(name, apiKey, true);
-      }
     } catch (err) {
       console.error('OpenAI name meaning failed:', err);
       return res.status(502).json({ error: 'Name meaning unavailable' });
-    }
-
-    if (!isUsableMeaning(meaning, name)) {
-      return res.status(502).json({ error: 'Name meaning was too generic' });
     }
 
     cache.set(key, meaning);

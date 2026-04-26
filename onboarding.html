@@ -351,12 +351,7 @@ function detectGender(name) {
   return 'f'; // default feminine (majority of target audience)
 }
 
-const NAME_MEANING_CACHE_KEY = 'ghazali_name_meanings_v2';
-const GENERIC_NAME_MEANING_MARKERS = [
-  'porte une douceur discrète',
-  'présence qui cherche le vrai',
-  'ce qui se cache déjà en toi',
-];
+const NAME_MEANING_CACHE_KEY = 'ghazali_name_meanings_v3';
 let nameMeaningReadyToContinue = false;
 let nameMeaningCurrentKey = '';
 
@@ -382,22 +377,8 @@ function getNameMeaningCache() {
   }
 }
 
-function isGenericNameMeaning(meaning) {
-  const normalized = String(meaning || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-  return GENERIC_NAME_MEANING_MARKERS.some(marker => {
-    const cleanMarker = marker
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-    return normalized.includes(cleanMarker);
-  });
-}
-
 function setNameMeaningCache(key, meaning) {
-  if (!meaning || isGenericNameMeaning(meaning)) return;
+  if (!meaning) return;
   const cache = getNameMeaningCache();
   cache[key] = {
     meaning,
@@ -453,8 +434,7 @@ async function revealNameMeaning() {
   nameMeaningCurrentKey = key;
 
   try {
-    let meaning = cached && !isGenericNameMeaning(cached) ? cached : '';
-    if (cached && !meaning) removeNameMeaningCache(key);
+    let meaning = cached || '';
 
     if (!meaning) {
       const res = await fetch('/api/name-meaning', {
@@ -467,9 +447,9 @@ async function revealNameMeaning() {
       meaning = data.meaning;
     }
 
-    if (!meaning || isGenericNameMeaning(meaning)) {
+    if (!meaning) {
       removeNameMeaningCache(key);
-      throw new Error('Generic name meaning rejected');
+      throw new Error('Name meaning unavailable');
     }
 
     setNameMeaningCache(key, meaning);
@@ -480,9 +460,9 @@ async function revealNameMeaning() {
   } catch (e) {
     console.error('Name meaning failed:', e);
     localStorage.setItem('ghazali_user', JSON.stringify({ name, gender, name_meaning_status: 'unavailable' }));
-    renderNameMeaning("Je n'arrive pas à lire l'origine de ton prénom pour l'instant. Tu peux continuer, et Ahlam le reprendra avec toi plus tard.", 'error');
-    nameMeaningReadyToContinue = true;
-    btnText.textContent = 'CONTINUER';
+    renderNameMeaning("La lecture du prénom n'a pas chargé. Réessaie dans un instant.", 'error');
+    nameMeaningReadyToContinue = false;
+    btnText.textContent = 'RÉESSAYER';
   } finally {
     btn.disabled = false;
   }

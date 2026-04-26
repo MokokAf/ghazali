@@ -2,7 +2,7 @@
 // GHAZALI — Service Worker
 // ============================================
 
-const CACHE_NAME = 'ghazali-v13';
+const CACHE_NAME = 'ghazali-v15';
 const SHELL_ASSETS = [
   '/app.html',
   '/onboarding.html',
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — cache-first for shell, network-first for API, stale-while-revalidate for CDN
+// Fetch — network-first for pages, cache-first for assets, stale-while-revalidate for CDN
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -55,6 +55,24 @@ self.addEventListener('fetch', (event) => {
           return cached || fetchPromise;
         })
       )
+    );
+    return;
+  }
+
+  const isPageRequest =
+    event.request.mode === 'navigate' ||
+    event.request.headers.get('accept')?.includes('text/html') ||
+    ['/app', '/onboarding', '/app.html', '/onboarding.html'].includes(url.pathname);
+
+  if (isPageRequest) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(event.request))
     );
     return;
   }
