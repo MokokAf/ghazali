@@ -355,6 +355,13 @@ const NAME_MEANING_CACHE_KEY = 'ghazali_name_meanings_v3';
 let nameMeaningReadyToContinue = false;
 let nameMeaningCurrentKey = '';
 
+function apiUrl(path) {
+  if (window.location.protocol === 'file:') {
+    return `http://localhost:3000${path}`;
+  }
+  return path;
+}
+
 function saveName() {
   revealNameMeaning();
 }
@@ -437,7 +444,7 @@ async function revealNameMeaning() {
     let meaning = cached || '';
 
     if (!meaning) {
-      const res = await fetch('/api/name-meaning', {
+      const res = await fetch(apiUrl('/api/name-meaning'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name }),
@@ -766,7 +773,7 @@ let supabase = null;
 
 async function initAuth() {
   try {
-    const res = await fetch('/api/config');
+    const res = await fetch(apiUrl('/api/config'));
     if (!res.ok) return;
     const { supabaseUrl, supabaseAnonKey } = await res.json();
     if (!window.supabase) return;
@@ -774,7 +781,7 @@ async function initAuth() {
 
     // If user already has a session or completed onboarding, skip → app
     const { data: { session } } = await supabase.auth.getSession();
-    if (session || localStorage.getItem('ghazali_onboarded')) {
+    if (!forceOnboardingStart && (session || localStorage.getItem('ghazali_onboarded'))) {
       window.location.replace('/app');
       return;
     }
@@ -843,14 +850,32 @@ document.getElementById('btn-email-retry').addEventListener('click', () => {
 // ========================================
 // INIT
 // ========================================
+const onboardingParams = new URLSearchParams(window.location.search);
+const forceOnboardingStart = onboardingParams.get('start') === '1';
+if (forceOnboardingStart) {
+  localStorage.removeItem('ghazali_ob_screen');
+  localStorage.removeItem('ghazali_onboarded');
+}
 
-// Register service worker
+// Register service worker in production only. Local dev should always use fresh HTML/JS.
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  const isLocalDev = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  if (isLocalDev) {
+    navigator.serviceWorker.getRegistrations()
+      .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+      .catch(() => {});
+    if ('caches' in window) {
+      caches.keys()
+        .then(keys => Promise.all(keys.filter(key => key.startsWith('ghazali-')).map(key => caches.delete(key))))
+        .catch(() => {});
+    }
+  } else {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 }
 
 // Restore onboarding progress (skip loading screen 6 — it auto-advances)
-const savedScreen = parseInt(localStorage.getItem('ghazali_ob_screen'));
+const savedScreen = forceOnboardingStart ? 1 : parseInt(localStorage.getItem('ghazali_ob_screen'));
 if (savedScreen && savedScreen > 1 && savedScreen !== 6 && savedScreen <= 8) {
   goScreen(savedScreen === 3 ? 4 : savedScreen);
 }

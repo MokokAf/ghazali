@@ -6,6 +6,7 @@ const CACHE_NAME = 'ghazali-v15';
 const SHELL_ASSETS = [
   '/app.html',
   '/onboarding.html',
+  '/reset-local.html',
   '/ghazali.css',
   '/manifest.json',
   '/icon-192.png',

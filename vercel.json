@@ -24,6 +24,7 @@
   },
   "rewrites": [
     { "source": "/app", "destination": "/app.html" },
+    { "source": "/partage", "destination": "/app.html" },
     { "source": "/onboarding", "destination": "/onboarding.html" }
   ],
   "redirects": [

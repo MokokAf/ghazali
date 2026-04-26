@@ -113,11 +113,17 @@
         <!-- Action buttons -->
         <div class="home-actions slide-up">
           <button class="home-share-btn" id="share-btn">
+            <svg class="whatsapp-icon" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+              <path d="M16.03 4.5A11.34 11.34 0 0 0 6.2 21.5L4.8 27.4l6.03-1.35A11.34 11.34 0 1 0 16.03 4.5Zm0 2.18a9.16 9.16 0 0 1 7.78 13.99 9.16 9.16 0 0 1-11.95 3.28l-.42-.22-3.58.8.83-3.48-.26-.45A9.16 9.16 0 0 1 16.03 6.68Zm-3.16 4.55c-.2 0-.52.07-.8.38-.27.3-1.04 1.02-1.04 2.5s1.07 2.9 1.22 3.1c.15.2 2.08 3.33 5.14 4.53 2.54 1 3.06.8 3.6.75.56-.05 1.78-.73 2.03-1.43.25-.7.25-1.3.18-1.43-.07-.13-.27-.2-.57-.35-.3-.15-1.78-.88-2.05-.98-.27-.1-.47-.15-.67.15-.2.3-.77.98-.95 1.18-.17.2-.35.22-.65.08-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.18-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5h-.57Z"/>
+            </svg>
             <span>PARTAGER AVEC UN PROCHE →</span>
           </button>
           <button class="home-musharata-btn" id="musharata-btn">
             <span>MUSHĀRATA →</span>
           </button>
+          <a class="home-share-cta" id="share-cta" href="/onboarding?start=1" hidden>
+            <span>APPUIE ICI POUR RECEVOIR TON VERSET DU JOUR</span>
+          </a>
           <div class="home-musharata-hint">Fais de cette lecture ton intention du jour</div>
         </div>
 
@@ -172,32 +178,10 @@
 
         <div class="divider mb-28"></div>
 
-        <div class="profil-section-label">PARENTS</div>
-        <div class="profil-parents">
-          <div class="profil-parent">
-            <div class="profil-parent-label">PÈRE</div>
-            <div class="profil-parent-ar">يوسف</div>
-            <div class="profil-parent-latin">YOUSSEF</div>
-            <div class="profil-parent-resonance">Le prophète des rêves</div>
-          </div>
-          <div class="profil-parent">
-            <div class="profil-parent-label">MÈRE</div>
-            <div class="profil-parent-ar">خديجة</div>
-            <div class="profil-parent-latin">KHADIJA</div>
-            <div class="profil-parent-resonance">Celle qui a cru la première</div>
-          </div>
-        </div>
-
-        <div class="profil-section-label">DATE HIJRI</div>
+        <div class="profil-section-label">DATE DE NAISSANCE</div>
         <div class="profil-hijri mb-28">
-          <div class="profil-hijri-ar">١٥ رمضان ١٤١٢</div>
-          <div class="profil-hijri-latin">15 RAMADAN 1412</div>
-        </div>
-
-        <div class="profil-section-label">ÉTAT DE L'ÂME</div>
-        <div class="profil-nafs-box">
-          <div class="profil-nafs-ar">لوّامة</div>
-          <div class="profil-nafs-latin">LAWWAMA</div>
+          <div class="profil-hijri-ar" id="profil-birthdate-ar">١٥ رمضان ١٤١٢</div>
+          <div class="profil-hijri-latin" id="profil-birthdate-latin">15 RAMADAN 1412</div>
         </div>
 
         <div class="profil-settings">
@@ -209,7 +193,11 @@
             <span class="profil-setting-label">ABONNEMENT</span>
             <span class="profil-setting-arrow">→</span>
           </div>
-          <div class="profil-setting">
+          <div class="profil-setting" data-auth-action="login">
+            <span class="profil-setting-label">SE CONNECTER</span>
+            <span class="profil-setting-arrow">→</span>
+          </div>
+          <div class="profil-setting" data-auth-action="logout">
             <span class="profil-setting-label">SE DÉCONNECTER</span>
             <span class="profil-setting-arrow">→</span>
           </div>
@@ -234,6 +222,34 @@
 // ========================================
 // GHAZALI — App Logic
 // ========================================
+const pageParams = new URLSearchParams(window.location.search);
+const isSharePage = window.location.pathname === '/partage' || pageParams.get('share') === '1';
+document.body.classList.toggle('share-mode', isSharePage);
+
+function applySharePageMode() {
+  if (!isSharePage) return;
+  [
+    '#pwa-banner',
+    '.bottom-nav',
+    '#tab-recherche',
+    '#tab-musharata',
+    '#tab-profil',
+    '#share-btn',
+    '#musharata-btn',
+    '.home-musharata-hint',
+  ].forEach(selector => {
+    const el = document.querySelector(selector);
+    if (el) el.hidden = true;
+  });
+
+  const cta = document.getElementById('share-cta');
+  if (cta) {
+    cta.hidden = false;
+    cta.style.display = 'block';
+  }
+}
+
+applySharePageMode();
 
 // --- Tab Navigation ---
 document.querySelectorAll('.nav-item').forEach(btn => {
@@ -248,15 +264,8 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 
 // --- Share button ---
 document.getElementById('share-btn').addEventListener('click', () => {
-  const btn = document.getElementById('share-btn');
-  const span = btn.querySelector('span');
-  const original = span.textContent;
-  span.textContent = 'COPIÉ ✓';
-  setTimeout(() => { span.textContent = original; }, 2000);
-
-  // Copy shareable text (dynamic or fallback)
-  const text = window._shareText || `۞ الزمر — Az-Zumar 39:10\n\nإِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ\n\nLes endurants auront leur pleine récompense sans compter.\n\n— Ghazali`;
-  navigator.clipboard.writeText(text).catch(() => {});
+  const text = window._shareText || `Je t'ai partagé mon verset du jour sur Ghazali.\n\n${window.location.origin}/partage`;
+  window.location.href = `https://wa.me/?text=${encodeURIComponent(text)}`;
 });
 
 // --- Musharata time-aware ---
@@ -342,12 +351,16 @@ function handleSettingSubscription() {
   document.querySelector('.nav-item[data-tab="musharata"]')?.click();
 }
 
-async function handleSettingAuthToggle() {
-  // Re-read auth state at click time so the handler works regardless of when initAuthSession completes
+function handleSettingLogin() {
+  window.location.href = '/onboarding';
+}
+
+async function handleSettingLogout() {
   if (sbClient && accessToken) {
     try { await sbClient.auth.signOut(); } catch (e) {}
-    accessToken = null;
   }
+  accessToken = null;
+  updateProfileUI(null);
   window.location.href = '/onboarding';
 }
 
@@ -357,8 +370,10 @@ document.querySelectorAll('.profil-setting').forEach(el => {
     el.addEventListener('click', handleSettingNotifications);
   } else if (label.includes('ABONNEMENT')) {
     el.addEventListener('click', handleSettingSubscription);
-  } else if (label.includes('CONNECTER')) {
-    el.addEventListener('click', handleSettingAuthToggle);
+  } else if (el.dataset.authAction === 'login') {
+    el.addEventListener('click', handleSettingLogin);
+  } else if (el.dataset.authAction === 'logout') {
+    el.addEventListener('click', handleSettingLogout);
   }
 });
 
@@ -387,18 +402,24 @@ function authHeaders() {
   return headers;
 }
 
-function updateProfileUI(user) {
-  // Only swaps the label text. The click handler is bound once at init
-  // (handleSettingAuthToggle) and reads auth state at click time, so the
-  // button works even before initAuthSession resolves.
-  const settingsEl = document.querySelector('.profil-settings');
-  if (!settingsEl) return;
+function getSavedProfile() {
+  try {
+    return JSON.parse(localStorage.getItem('ghazali_user') || '{}');
+  } catch (e) {
+    return {};
+  }
+}
 
-  settingsEl.querySelectorAll('.profil-setting .profil-setting-label').forEach(label => {
-    if (label.textContent.includes('CONNECTER')) {
-      label.textContent = user ? 'SE DÉCONNECTER' : 'SE CONNECTER';
-    }
-  });
+function updateProfileDetails() {
+  const profile = getSavedProfile();
+  const displayName = profile.name || 'Sarah';
+  const nameLatin = document.querySelector('.profil-name-latin');
+  if (nameLatin) nameLatin.textContent = displayName.toUpperCase();
+}
+
+function updateProfileUI(user) {
+  // Login and logout stay visible as two explicit profile actions.
+  // The logout handler safely no-ops when there is no active session.
 }
 
 async function migrateAnon() {
@@ -449,6 +470,8 @@ async function initAuthSession() {
   }
 }
 
+updateProfileDetails();
+updateProfileUI(null);
 initAuthSession();
 
 // ========================================
@@ -469,14 +492,15 @@ async function loadDailyContent() {
     const days = await res.json();
     if (!days.length) return;
 
+    const requestedDayId = Number(pageParams.get('d'));
     const dayIndex = getDayOfYear() % days.length;
-    const day = days[dayIndex];
+    const day = days.find(item => item.id === requestedDayId) || days[dayIndex];
 
     // Get user gender from localStorage
-    let gender = 'f';
+    let gender = pageParams.get('g') === 'm' ? 'm' : 'f';
     try {
       const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
-      if (user.gender) gender = user.gender;
+      if (!pageParams.get('g') && user.gender) gender = user.gender;
     } catch (e) {}
 
     // Populate DOM
@@ -497,8 +521,10 @@ async function loadDailyContent() {
     const tanbihItems = document.querySelectorAll('.home-tanbih-item');
     day.tanbih.forEach((val, i) => { if (tanbihItems[i]) tanbihItems[i].textContent = val; });
 
-    // Update share text
-    window._shareText = `۞ ${day.surah_ar} — ${day.surah_latin}\n\n${day.ayah_ar}\n\n${day.ayah_fr}\n\n— Ghazali`;
+    // Update WhatsApp share text + stable share URL for this exact content
+    const shareUrl = `${window.location.origin}/partage?d=${encodeURIComponent(day.id)}&g=${encodeURIComponent(gender)}`;
+    window._shareUrl = shareUrl;
+    window._shareText = `Je t'ai partagé mon verset du jour sur Ghazali.\n\n${day.ayah_fr}\n\n${shareUrl}`;
   } catch (e) {
     console.error('Failed to load daily content:', e);
     // Hardcoded HTML stays as fallback
@@ -511,7 +537,19 @@ loadDailyContent();
 // SERVICE WORKER
 // ========================================
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  const isLocalDev = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  if (isLocalDev) {
+    navigator.serviceWorker.getRegistrations()
+      .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+      .catch(() => {});
+    if ('caches' in window) {
+      caches.keys()
+        .then(keys => Promise.all(keys.filter(key => key.startsWith('ghazali-')).map(key => caches.delete(key))))
+        .catch(() => {});
+    }
+  } else {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 }
 
 // ========================================

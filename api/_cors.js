@@ -4,6 +4,7 @@ const ALLOWED_ORIGINS = [
   'https://www.ghazali.com',
   'http://localhost:8080',
   'http://localhost:3000',
+  'null',
 ];
 
 export function setCors(req, res) {

@@ -332,65 +332,86 @@ html, body {
 
 /* --- Home Niyyah / Tanbih Columns --- */
 .home-columns {
-  display: flex;
-  gap: 0;
-  padding: 0 var(--padding-page);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  column-gap: 18px;
+  padding: 18px var(--padding-page) 16px;
+  align-items: stretch;
+  border-top: 0.5px solid rgba(62, 93, 120, 0.24);
+  border-bottom: 0.5px solid rgba(62, 93, 120, 0.18);
 }
 
 .home-col {
-  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
 .home-col-divider {
   width: 1px;
-  background: var(--indigo-structure);
-  margin: 0 16px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(62, 93, 120, 0.4) 18%,
+    rgba(62, 93, 120, 0.32) 82%,
+    transparent 100%
+  );
+  margin: 0;
   align-self: stretch;
 }
 
 .home-col-label-row {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: var(--gap-label);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  margin-bottom: 8px;
 }
 
 .home-niyyah-label {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 2px;
+  font-size: 8px;
+  letter-spacing: 2.4px;
   color: var(--gold);
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .home-tanbih-label {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--indigo-muted);
+  font-size: 8px;
+  letter-spacing: 2.4px;
+  color: rgba(176, 196, 214, 0.52);
   text-transform: uppercase;
+  line-height: 1;
 }
 
 .home-col-sub {
   font-family: var(--font-mono);
-  font-size: 8px;
-  color: var(--indigo-muted);
+  font-size: 7px;
+  color: rgba(106, 140, 168, 0.78);
+  letter-spacing: 0.8px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .home-niyyah-item {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 300;
   color: var(--vellum);
-  margin-bottom: var(--gap-item);
+  line-height: 1.32;
+  margin-bottom: 0;
 }
 
 .home-tanbih-item {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 300;
-  color: var(--indigo-secondary);
-  margin-bottom: var(--gap-item);
+  color: rgba(176, 196, 214, 0.68);
+  line-height: 1.32;
+  margin-bottom: 0;
 }
 
 /* --- Home Action Buttons --- */
@@ -400,7 +421,10 @@ html, body {
 }
 
 .home-share-btn {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   width: 100%;
   background: transparent;
   border: 1px solid var(--indigo-muted);
@@ -412,6 +436,14 @@ html, body {
 }
 
 .home-share-btn:active { transform: scale(0.98); }
+
+.whatsapp-icon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  fill: #25D366;
+  flex-shrink: 0;
+}
 
 .home-share-btn span {
   font-family: var(--font-mono);
@@ -442,6 +474,29 @@ html, body {
   color: var(--indigo-ground);
 }
 
+.home-share-cta {
+  display: none;
+  width: 100%;
+  background: var(--gold);
+  border: none;
+  padding: 16px 18px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-share-cta:active { transform: scale(0.98); }
+
+.home-share-cta span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--indigo-ground);
+  line-height: 1.4;
+}
+
 .home-musharata-hint {
   font-family: var(--font-serif);
   font-size: 12px;
@@ -455,6 +510,33 @@ html, body {
 /* Spacer above nav adapts to context */
 .home-spacer {
   height: 100px;
+}
+
+.share-mode #pwa-banner,
+.share-mode .bottom-nav,
+.share-mode #tab-recherche,
+.share-mode #tab-musharata,
+.share-mode #tab-profil,
+.share-mode .home-share-btn,
+.share-mode .home-musharata-btn,
+.share-mode .home-musharata-hint {
+  display: none !important;
+}
+
+.share-mode .app-content {
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.share-mode .home-actions {
+  margin-top: 36px;
+}
+
+.share-mode .home-share-cta {
+  display: block;
+}
+
+.share-mode .home-spacer {
+  height: 36px;
 }
 
 @media (display-mode: standalone) {
@@ -944,107 +1026,24 @@ html, body {
   margin-bottom: var(--gap-label);
 }
 
-.profil-parents {
-  display: flex;
-  gap: 0;
-  margin-bottom: 28px;
-}
-
-.profil-parent {
-  flex: 1;
-  position: relative;
-}
-
-.profil-parent + .profil-parent {
-  padding-left: 16px;
-}
-
-.profil-parent + .profil-parent::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0.5px;
-  background: var(--indigo-structure);
-}
-
-.profil-parent-label {
-  font-family: var(--font-mono);
-  font-size: 7px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.profil-parent-ar {
-  font-family: var(--font-arabic);
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--vellum);
-  margin-bottom: 2px;
-}
-
-.profil-parent-latin {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  margin-bottom: 4px;
-}
-
-.profil-parent-resonance {
-  font-family: var(--font-serif);
-  font-size: 11px;
-  font-weight: 300;
-  font-style: italic;
-  color: var(--indigo-secondary);
-}
-
 .profil-hijri {
   margin-bottom: 28px;
 }
 
 .profil-hijri-ar {
   font-family: var(--font-arabic);
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 400;
   color: var(--gold);
+  margin-bottom: 4px;
 }
 
 .profil-hijri-latin {
   font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 400;
-  color: var(--indigo-muted);
-  margin-top: 2px;
-}
-
-.profil-nafs-box {
-  border: 1px solid var(--gold);
-  background: var(--gold-active-bg);
-  padding: 16px;
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.profil-nafs-ar {
-  font-family: var(--font-arabic);
-  font-size: 22px;
-  font-weight: 400;
-  color: var(--gold);
-}
-
-.profil-nafs-latin {
-  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 400;
-  color: var(--gold);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 4px;
+  color: var(--indigo-muted);
+  letter-spacing: 1.8px;
 }
 
 .profil-settings {
@@ -1077,6 +1076,10 @@ html, body {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--indigo-muted);
+}
+
+.profil-setting[hidden] {
+  display: none;
 }
 
 /* ===================================
