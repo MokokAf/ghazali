@@ -503,10 +503,29 @@ function WheelColumn(colEl, items) {
   const itemEls = inner.querySelectorAll('.ob-date-item');
   let selectedEl = null;
 
+  function renderCylinder() {
+    const center = colEl.scrollTop / ITEM_H;
+    itemEls.forEach((el, i) => {
+      const offset = i - center;
+      const abs = Math.abs(offset);
+      const clamped = Math.min(abs, 4);
+      const opacity = Math.max(0.12, 1 - clamped * 0.22);
+      const scale = Math.max(0.76, 1 - clamped * 0.055);
+      const blur = abs > 2.2 ? Math.min(1.6, (abs - 2.2) * 0.9) : 0;
+
+      el.style.setProperty('--wheel-offset', offset.toFixed(3));
+      el.style.setProperty('--wheel-opacity', opacity.toFixed(3));
+      el.style.setProperty('--wheel-scale', scale.toFixed(3));
+      el.style.setProperty('--wheel-blur', `${blur.toFixed(2)}px`);
+      el.style.zIndex = String(20 - Math.round(clamped * 4));
+    });
+  }
+
   function markSelected(idx) {
     if (selectedEl) selectedEl.classList.remove('selected');
     selectedEl = itemEls[idx] || null;
     if (selectedEl) selectedEl.classList.add('selected');
+    renderCylinder();
   }
 
   function currentIndex() {
@@ -515,6 +534,7 @@ function WheelColumn(colEl, items) {
   }
 
   function commit() {
+    renderCylinder();
     const idx = currentIndex();
     if (idx !== selectedIndex) {
       selectedIndex = idx;
@@ -528,6 +548,7 @@ function WheelColumn(colEl, items) {
       rafPending = true;
       requestAnimationFrame(() => {
         rafPending = false;
+        renderCylinder();
         commit();
       });
     }
@@ -548,8 +569,9 @@ function WheelColumn(colEl, items) {
   function scrollToIndex(idx, smooth) {
     idx = Math.max(0, Math.min(maxIndex, idx));
     selectedIndex = idx;
-    markSelected(idx);
     colEl.scrollTo({ top: idx * ITEM_H, behavior: smooth ? 'smooth' : 'auto' });
+    markSelected(idx);
+    requestAnimationFrame(renderCylinder);
   }
 
   return {
@@ -562,6 +584,7 @@ function WheelColumn(colEl, items) {
       // When the screen becomes visible again, snap scroll position back to the selected index
       colEl.scrollTop = selectedIndex * ITEM_H;
       markSelected(selectedIndex);
+      renderCylinder();
     },
   };
 }
@@ -604,16 +627,17 @@ window._initDatePickerScroll = function() {
 };
 
 function saveDateOfBirth() {
-  const day = wheelInstances.day?.getValue() || 15;
+  const selectedDay = wheelInstances.day?.getValue() || 15;
   const month = wheelInstances.month?.getValue() || 3;
   const year = wheelInstances.year?.getValue() || 1992;
+  const day = Math.min(selectedDay, daysInGregorianMonth(year, month));
 
   const iso = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   const user = JSON.parse(localStorage.getItem('ghazali_user') || '{}');
   user.date_of_birth = iso;
+  user.hijri_date_of_birth = computeHijriReveal(year, month, day, user.gender || 'f');
   localStorage.setItem('ghazali_user', JSON.stringify(user));
 
-  computeHijriReveal(year, month, day, user.gender || 'f');
   goScreen(5);
 }
 
@@ -624,27 +648,30 @@ function saveDateOfBirth() {
 const HIJRI_MONTHS_AR = ['محرّم','صفر','ربيع الأوّل','ربيع الثاني','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوّال','ذو القعدة','ذو الحجّة'];
 const HIJRI_MONTHS_LATIN = ['MUHARRAM','SAFAR','RABI AL-AWWAL','RABI ATH-THANI','JUMADA AL-ULA','JUMADA AL-AKHIRA','RAJAB','SHABAN','RAMADAN','SHAWWAL','DHU AL-QADA','DHU AL-HIJJA'];
 const HIJRI_MONTH_NOTES = [
-  "Le premier mois du calendrier islamique. Un mois sacré, où la paix intérieure est recherchée.",
-  "Le mois qui suit le sacré. Un temps de transition et de préparation.",
-  "Le mois du printemps. La vie commence à renaître, comme ton chemin spirituel.",
-  "Le second printemps. La patience porte ses fruits, lentement mais sûrement.",
-  "Le premier mois de l'aridité. Un rappel que même dans la sécheresse, la foi irrigue.",
-  "Le second mois de l'aridité. La persévérance dans le silence est une forme de prière.",
-  "Le mois sacré de Rajab. Un des quatre mois sacrés, prélude au voyage spirituel.",
-  "Le mois de la séparation. Le temps de se préparer pour ce qui vient.",
-  "Le mois de Ramadan est celui au cours duquel le Coran a été descendu. Un mois béni pour une naissance bénie.",
-  "Le mois de la rupture du jeûne. La récompense après l'effort, la joie après la patience.",
-  "Le mois du repos. Un temps de préparation avant le pèlerinage sacré.",
-  "Le mois du pèlerinage sacré. Le sommet du calendrier islamique, un mois de convergence."
+  "Ta naissance en Muharram garde le parfum d'un commencement sacré : une invitation à avancer avec paix et intention.",
+  "Ta naissance en Safar porte une énergie de passage : apprendre à traverser, à te délester, puis à repartir plus léger.",
+  "Ta naissance en Rabi al-Awwal porte une saison de douceur et de renouveau, comme une miséricorde qui revient au cœur.",
+  "Ta naissance en Rabi ath-Thani parle de patience fertile : ce qui grandit en silence peut devenir une force stable.",
+  "Ta naissance en Jumada al-Ula rappelle que même les terres sèches cachent une source quand la confiance demeure.",
+  "Ta naissance en Jumada al-Akhira invite à tenir bon avec pudeur, constance et foi dans les fruits invisibles.",
+  "Ta naissance en Rajab, un mois sacré, porte une note de respect intérieur, de retenue et de retour vers Dieu.",
+  "Ta naissance en Shaban ressemble à une préparation du cœur : mettre de l'ordre en soi avant les grandes lumières.",
+  "Ta naissance en Ramadan touche au mois du Coran et de la miséricorde : une date placée sous le signe de la lumière.",
+  "Ta naissance en Shawwal vient après l'effort : elle porte la joie, la gratitude et la douceur des recommencements.",
+  "Ta naissance en Dhu al-Qada, un mois sacré, évoque le calme avant le grand départ, la paix avant l'élan.",
+  "Ta naissance en Dhu al-Hijja touche au pèlerinage : elle rappelle l'appel, le sacrifice noble et le retour à l'essentiel."
 ];
 
 function toArabicNumerals(n) {
   return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
 
-// Simplified Gregorian → Hijri conversion (Kuwaiti algorithm)
-function gregorianToHijri(year, month, day) {
-  const d = new Date(year, month - 1, day);
+function daysInGregorianMonth(year, month) {
+  return new Date(Date.UTC(year, month, 0, 12)).getUTCDate();
+}
+
+function gregorianToHijriCivil(year, month, day) {
+  const d = new Date(Date.UTC(year, month - 1, day, 12));
   const jd = Math.floor((d.getTime() / 86400000) + 2440587.5);
 
   const l = jd - 1948440 + 10632;
@@ -659,7 +686,34 @@ function gregorianToHijri(year, month, day) {
   const hDay = remaining - Math.floor((709 * hMonth) / 24);
   const hYear = 30 * n + j - 30;
 
-  return { day: hDay, month: hMonth, year: hYear };
+  return { day: hDay, month: hMonth, year: hYear, method: 'civil-fallback' };
+}
+
+function gregorianToHijri(year, month, day) {
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura-nu-latn', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+
+    if (formatter.resolvedOptions().calendar === 'islamic-umalqura') {
+      const parts = Object.fromEntries(
+        formatter.formatToParts(date)
+          .filter(part => ['year', 'month', 'day'].includes(part.type))
+          .map(part => [part.type, Number(part.value)])
+      );
+
+      if (parts.year && parts.month && parts.day) {
+        return { day: parts.day, month: parts.month, year: parts.year, method: 'umm-al-qura' };
+      }
+    }
+  } catch (e) {}
+
+  return gregorianToHijriCivil(year, month, day);
 }
 
 function computeHijriReveal(gYear, gMonth, gDay, gender) {
@@ -680,6 +734,14 @@ function computeHijriReveal(gYear, gMonth, gDay, gender) {
   } else {
     label.textContent = 'TU ES NÉE LE';
   }
+
+  return {
+    day: h.day,
+    month: h.month,
+    year: h.year,
+    month_name: HIJRI_MONTHS_LATIN[monthIdx],
+    method: h.method,
+  };
 }
 
 // ========================================

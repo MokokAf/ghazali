@@ -36,10 +36,56 @@
 <div class="app-shell">
 
   <!-- Banner for non-standalone users -->
-  <div id="pwa-banner" style="display:none; padding:12px 20px; padding-top:calc(12px + env(safe-area-inset-top, 0px)); background:rgba(232,198,93,0.08); border-bottom:0.5px solid rgba(232,198,93,0.2); text-align:center;">
-    <p style="font-family:var(--font-serif); font-size:13px; font-weight:300; color:var(--gold-glow); margin-bottom:4px;">Ouvre Ghazali depuis ton écran d'accueil</p>
-    <p style="font-family:var(--font-mono); font-size:8px; color:var(--indigo-secondary); letter-spacing:1px;">POUR UNE MEILLEURE EXPÉRIENCE</p>
-    <button onclick="document.getElementById('pwa-banner').style.display='none'; localStorage.setItem('ghazali_pwa_dismissed','1');" style="position:absolute; top:8px; right:12px; background:none; border:none; color:var(--indigo-muted); font-size:16px; cursor:pointer; padding:4px;">✕</button>
+  <div id="pwa-banner" class="pwa-banner" hidden>
+    <button class="pwa-banner-copy" id="pwa-banner-toggle" type="button" aria-expanded="false" aria-controls="pwa-install-panel">
+      <span class="pwa-banner-title">Ouvre Ghazali depuis ton écran d'accueil</span>
+      <span class="pwa-banner-subtitle">POUR UNE MEILLEURE EXPÉRIENCE</span>
+    </button>
+    <button class="pwa-banner-close" id="pwa-banner-close" type="button" aria-label="Fermer">×</button>
+
+    <div class="pwa-install-panel" id="pwa-install-panel" hidden>
+      <div class="ob-platform-row pwa-platform-row">
+        <button class="ob-platform-btn" id="app-btn-iphone" type="button">
+          <svg class="ob-platform-icon" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M16.86 12.48c-.03-2.38 1.95-3.52 2.04-3.58-1.12-1.64-2.84-1.86-3.44-1.88-1.46-.15-2.84.86-3.58.86-.75 0-1.89-.84-3.11-.82-1.6.02-3.08.93-3.9 2.36-1.66 2.88-.42 7.14 1.2 9.47.79 1.14 1.73 2.43 2.96 2.38 1.19-.05 1.64-.77 3.08-.77 1.43 0 1.84.77 3.1.75 1.28-.02 2.09-1.17 2.87-2.32.91-1.33 1.28-2.62 1.3-2.69-.03-.01-2.5-.96-2.52-3.76ZM14.5 5.49c.65-.78 1.09-1.87.97-2.95-.94.04-2.07.62-2.75 1.4-.6.69-1.13 1.8-.99 2.86 1.05.08 2.12-.53 2.77-1.31Z"/>
+          </svg>
+          <span class="ob-platform-label">IPHONE</span>
+        </button>
+        <button class="ob-platform-btn" id="app-btn-android" type="button">
+          <svg class="ob-platform-icon" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M7.54 8.34 5.88 5.46a.6.6 0 0 1 1.04-.6L8.63 7.8A9.02 9.02 0 0 1 12 7.16c1.19 0 2.33.23 3.37.64l1.71-2.94a.6.6 0 0 1 1.04.6l-1.66 2.88A7.86 7.86 0 0 1 20 14.92v.58H4v-.58a7.86 7.86 0 0 1 3.54-6.58Zm1.1 4.16a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8Zm6.72 0a.9.9 0 1 0 0-1.8.9.9 0 0 0 0 1.8ZM4 16.7h16v2.38c0 .77-.62 1.39-1.39 1.39H5.39c-.77 0-1.39-.62-1.39-1.39V16.7Z"/>
+          </svg>
+          <span class="ob-platform-label">ANDROID</span>
+        </button>
+      </div>
+
+      <div class="ob-iphone-expand pwa-flow" id="app-flow-iphone">
+        <div class="ob-ios-steps">
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">1</div>
+            <div class="ob-ios-step-text">Appuie sur <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="12" height="12" rx="0" stroke="#6A8CA8" stroke-width="1.2" fill="none"/><line x1="8" y1="1" x2="8" y2="13" stroke="#6A8CA8" stroke-width="1.2"/><polyline points="5,4 8,1 11,4" fill="none" stroke="#6A8CA8" stroke-width="1.2"/></svg> en bas de Safari</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">2</div>
+            <div class="ob-ios-step-text">Sélectionne "Sur l'écran d'accueil"</div>
+          </div>
+          <div class="ob-ios-step">
+            <div class="ob-ios-step-num">3</div>
+            <div class="ob-ios-step-text">Appuie sur "Ajouter"</div>
+          </div>
+        </div>
+        <div class="ob-ios-after-note">Ensuite, ouvre Ghazali depuis ton écran d'accueil.</div>
+      </div>
+
+      <div class="ob-flow-container pwa-flow" id="app-flow-android">
+        <button class="btn-primary" id="app-btn-install-pwa" type="button" style="width:100%; margin-bottom:12px;">
+          <span>INSTALLER L'APP</span>
+        </button>
+        <div class="ob-install-fallback" id="app-android-fallback" style="display:none;">
+          Ouvre cette page dans Chrome, puis utilise le menu ⋮ et "Ajouter à l'écran d'accueil".
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ========== SCROLLABLE CONTENT ========== -->
@@ -180,8 +226,9 @@
 
         <div class="profil-section-label">DATE DE NAISSANCE</div>
         <div class="profil-hijri mb-28">
-          <div class="profil-hijri-ar" id="profil-birthdate-ar">١٥ رمضان ١٤١٢</div>
-          <div class="profil-hijri-latin" id="profil-birthdate-latin">15 RAMADAN 1412</div>
+          <div class="profil-hijri-ar" id="profil-birthdate-ar">—</div>
+          <div class="profil-hijri-latin" id="profil-birthdate-latin">DATE NON RENSEIGNÉE</div>
+          <div class="profil-hijri-note" id="profil-birthdate-note"></div>
         </div>
 
         <div class="profil-settings">
@@ -430,11 +477,120 @@ function getSavedProfile() {
   }
 }
 
+const HIJRI_MONTHS_AR = ['محرّم','صفر','ربيع الأوّل','ربيع الثاني','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوّال','ذو القعدة','ذو الحجّة'];
+const HIJRI_MONTHS_LATIN = ['MUHARRAM','SAFAR','RABI AL-AWWAL','RABI ATH-THANI','JUMADA AL-ULA','JUMADA AL-AKHIRA','RAJAB','SHABAN','RAMADAN','SHAWWAL','DHU AL-QADA','DHU AL-HIJJA'];
+const HIJRI_MONTH_NOTES = [
+  "Ta naissance en Muharram garde le parfum d'un commencement sacré : une invitation à avancer avec paix et intention.",
+  "Ta naissance en Safar porte une énergie de passage : apprendre à traverser, à te délester, puis à repartir plus léger.",
+  "Ta naissance en Rabi al-Awwal porte une saison de douceur et de renouveau, comme une miséricorde qui revient au cœur.",
+  "Ta naissance en Rabi ath-Thani parle de patience fertile : ce qui grandit en silence peut devenir une force stable.",
+  "Ta naissance en Jumada al-Ula rappelle que même les terres sèches cachent une source quand la confiance demeure.",
+  "Ta naissance en Jumada al-Akhira invite à tenir bon avec pudeur, constance et foi dans les fruits invisibles.",
+  "Ta naissance en Rajab, un mois sacré, porte une note de respect intérieur, de retenue et de retour vers Dieu.",
+  "Ta naissance en Shaban ressemble à une préparation du cœur : mettre de l'ordre en soi avant les grandes lumières.",
+  "Ta naissance en Ramadan touche au mois du Coran et de la miséricorde : une date placée sous le signe de la lumière.",
+  "Ta naissance en Shawwal vient après l'effort : elle porte la joie, la gratitude et la douceur des recommencements.",
+  "Ta naissance en Dhu al-Qada, un mois sacré, évoque le calme avant le grand départ, la paix avant l'élan.",
+  "Ta naissance en Dhu al-Hijja touche au pèlerinage : elle rappelle l'appel, le sacrifice noble et le retour à l'essentiel."
+];
+
+function toArabicNumerals(n) {
+  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+function gregorianToHijriCivil(year, month, day) {
+  const d = new Date(Date.UTC(year, month - 1, day, 12));
+  const jd = Math.floor((d.getTime() / 86400000) + 2440587.5);
+
+  const l = jd - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const remainder = l - 10631 * n + 354;
+  const j = Math.floor((10985 - remainder) / 5316) * Math.floor((50 * remainder) / 17719) +
+            Math.floor(remainder / 5670) * Math.floor((43 * remainder) / 15238);
+  const remaining = remainder - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+                    Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+
+  const hMonth = Math.floor((24 * remaining) / 709);
+  const hDay = remaining - Math.floor((709 * hMonth) / 24);
+  const hYear = 30 * n + j - 30;
+
+  return { day: hDay, month: hMonth, year: hYear, method: 'civil-fallback' };
+}
+
+function gregorianToHijri(year, month, day) {
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura-nu-latn', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    });
+
+    if (formatter.resolvedOptions().calendar === 'islamic-umalqura') {
+      const parts = Object.fromEntries(
+        formatter.formatToParts(date)
+          .filter(part => ['year', 'month', 'day'].includes(part.type))
+          .map(part => [part.type, Number(part.value)])
+      );
+
+      if (parts.year && parts.month && parts.day) {
+        return { day: parts.day, month: parts.month, year: parts.year, method: 'umm-al-qura' };
+      }
+    }
+  } catch (e) {}
+
+  return gregorianToHijriCivil(year, month, day);
+}
+
+function parseDateOfBirth(iso) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return { year, month, day };
+}
+
 function updateProfileDetails() {
   const profile = getSavedProfile();
   const displayName = profile.name || 'Sarah';
   const nameLatin = document.querySelector('.profil-name-latin');
+  const birthAr = document.getElementById('profil-birthdate-ar');
+  const birthLatin = document.getElementById('profil-birthdate-latin');
+  const birthNote = document.getElementById('profil-birthdate-note');
+
   if (nameLatin) nameLatin.textContent = displayName.toUpperCase();
+
+  const birthDate = parseDateOfBirth(profile.date_of_birth);
+  if (!birthDate) {
+    if (birthAr) birthAr.textContent = '—';
+    if (birthLatin) birthLatin.textContent = 'DATE NON RENSEIGNÉE';
+    if (birthNote) birthNote.textContent = '';
+    return;
+  }
+
+  const h = gregorianToHijri(birthDate.year, birthDate.month, birthDate.day);
+  const monthIdx = Math.max(0, Math.min(11, h.month - 1));
+
+  if (birthAr) {
+    birthAr.textContent = `${toArabicNumerals(h.day)} ${HIJRI_MONTHS_AR[monthIdx]} ${toArabicNumerals(h.year)}`;
+  }
+  if (birthLatin) {
+    birthLatin.textContent = `${h.day} ${HIJRI_MONTHS_LATIN[monthIdx]} ${h.year}`;
+  }
+  if (birthNote) {
+    birthNote.textContent = HIJRI_MONTH_NOTES[monthIdx];
+  }
 }
 
 function updateProfileUI(user) {
@@ -575,12 +731,64 @@ if ('serviceWorker' in navigator) {
 // ========================================
 // PWA BANNER (non-standalone users)
 // ========================================
+let appDeferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  appDeferredInstallPrompt = e;
+});
+
+function selectAppInstallPlatform(platform) {
+  document.getElementById('app-btn-iphone')?.classList.toggle('selected', platform === 'iphone');
+  document.getElementById('app-btn-android')?.classList.toggle('selected', platform === 'android');
+  document.getElementById('app-flow-iphone')?.classList.toggle('active', platform === 'iphone');
+  document.getElementById('app-flow-android')?.classList.toggle('active', platform === 'android');
+}
+
+function togglePwaInstallPanel(forceOpen) {
+  const panel = document.getElementById('pwa-install-panel');
+  const toggle = document.getElementById('pwa-banner-toggle');
+  if (!panel || !toggle) return;
+
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : panel.hidden;
+  panel.hidden = !shouldOpen;
+  toggle.setAttribute('aria-expanded', String(shouldOpen));
+
+  if (shouldOpen) {
+    const ua = navigator.userAgent || '';
+    selectAppInstallPlatform(/Android/i.test(ua) ? 'android' : 'iphone');
+  }
+}
+
+document.getElementById('pwa-banner-toggle')?.addEventListener('click', () => {
+  togglePwaInstallPanel();
+});
+
+document.getElementById('pwa-banner-close')?.addEventListener('click', () => {
+  document.getElementById('pwa-banner').hidden = true;
+  localStorage.setItem('ghazali_pwa_dismissed', '1');
+});
+
+document.getElementById('app-btn-iphone')?.addEventListener('click', () => selectAppInstallPlatform('iphone'));
+document.getElementById('app-btn-android')?.addEventListener('click', () => selectAppInstallPlatform('android'));
+
+document.getElementById('app-btn-install-pwa')?.addEventListener('click', async () => {
+  if (!appDeferredInstallPrompt) {
+    document.getElementById('app-android-fallback').style.display = 'block';
+    return;
+  }
+
+  appDeferredInstallPrompt.prompt();
+  await appDeferredInstallPrompt.userChoice;
+  appDeferredInstallPrompt = null;
+});
+
 const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
 if (!isStandalone && !localStorage.getItem('ghazali_pwa_dismissed')) {
   const ua = navigator.userAgent || '';
-  // Only show on mobile Safari (iPhone/iPad) — not desktop browsers
-  if (/iPhone|iPad|iPod/i.test(ua)) {
-    document.getElementById('pwa-banner').style.display = 'block';
+  // Only show on mobile browsers — not desktop browsers.
+  if (/iPhone|iPad|iPod|Android/i.test(ua)) {
+    document.getElementById('pwa-banner').hidden = false;
   }
 }
 </script>

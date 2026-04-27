@@ -84,6 +84,78 @@ html, body {
   z-index: 1;
 }
 
+/* --- PWA install banner --- */
+.pwa-banner {
+  position: relative;
+  padding: 12px 20px;
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  background: rgba(232, 198, 93, 0.08);
+  border-bottom: 0.5px solid rgba(232, 198, 93, 0.2);
+  text-align: center;
+  z-index: 20;
+}
+
+.pwa-banner[hidden],
+.pwa-install-panel[hidden] {
+  display: none;
+}
+
+.pwa-banner-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0 22px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pwa-banner-title {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--gold-glow);
+}
+
+.pwa-banner-subtitle {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--indigo-secondary);
+  letter-spacing: 1px;
+}
+
+.pwa-banner-close {
+  position: absolute;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--indigo-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pwa-install-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(232, 198, 93, 0.14);
+  text-align: left;
+}
+
+.pwa-platform-row {
+  margin: 0;
+}
+
+.pwa-flow {
+  margin-top: 12px;
+}
+
 /* --- App Shell --- */
 .app-shell {
   position: relative;
@@ -433,7 +505,20 @@ html, body {
   cursor: pointer;
   margin-bottom: 12px;
   -webkit-tap-highlight-color: transparent;
-  text-decoration: none;
+  color: inherit;
+  text-decoration: none !important;
+  -webkit-text-decoration: none;
+}
+
+.home-share-btn:link,
+.home-share-btn:visited,
+.home-share-btn:hover,
+.home-share-btn:focus,
+.home-share-btn:active {
+  color: inherit;
+  text-decoration: none !important;
+  -webkit-text-decoration: none;
+  outline: none;
 }
 
 .home-share-btn:active { transform: scale(0.98); }
@@ -452,6 +537,7 @@ html, body {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--vellum);
+  text-decoration: none;
 }
 
 .home-musharata-btn {
@@ -1045,6 +1131,16 @@ html, body {
   font-weight: 400;
   color: var(--indigo-muted);
   letter-spacing: 1.8px;
+}
+
+.profil-hijri-note {
+  max-width: 300px;
+  margin-top: 14px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--indigo-secondary);
 }
 
 .profil-settings {
@@ -1673,44 +1769,61 @@ html, body {
   50% { opacity: 1; }
 }
 
-/* Date picker — native scroll-snap wheel */
+/* Date picker — native scroll-snap cylindrical wheel */
 .ob-date-picker {
   display: flex;
   justify-content: center;
   gap: 0;
-  height: 220px;
+  height: 232px;
   overflow: hidden;
   position: relative;
-  margin: 20px 0;
+  margin: 22px 0;
+  perspective: 820px;
+  transform-style: preserve-3d;
+  isolation: isolate;
 }
 
-/* Subtle highlight band for selected row */
+/* Glass band for the selected row */
 .ob-date-picker::before {
   content: '';
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
+  left: 10px;
+  right: 10px;
   transform: translateY(-50%);
-  height: 40px;
-  background: rgba(237, 229, 212, 0.04);
+  height: 46px;
+  background:
+    linear-gradient(180deg, rgba(237, 229, 212, 0.10), rgba(237, 229, 212, 0.025)),
+    radial-gradient(ellipse at center, rgba(200, 169, 106, 0.10), transparent 72%);
+  border-top: 1px solid rgba(237, 229, 212, 0.16);
+  border-bottom: 1px solid rgba(237, 229, 212, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(10, 18, 28, 0.24),
+    0 12px 34px rgba(0, 0, 0, 0.16);
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
 }
 
-/* Fade edges — mask that lets the column fade into the background */
+/* Fade edges and cylindrical shading */
 .ob-date-picker::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom,
-    var(--indigo-ground) 0%,
-    transparent 30%,
-    transparent 70%,
-    var(--indigo-ground) 100%
-  );
+  background:
+    linear-gradient(to bottom,
+      var(--indigo-ground) 0%,
+      rgba(26, 45, 66, 0.90) 10%,
+      rgba(26, 45, 66, 0.18) 31%,
+      transparent 44%,
+      transparent 56%,
+      rgba(26, 45, 66, 0.18) 69%,
+      rgba(26, 45, 66, 0.90) 90%,
+      var(--indigo-ground) 100%
+    ),
+    radial-gradient(ellipse at center, transparent 30%, rgba(8, 16, 26, 0.24) 100%);
   pointer-events: none;
-  z-index: 2;
+  z-index: 4;
 }
 
 .ob-date-col {
@@ -1723,6 +1836,13 @@ html, body {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  transform-style: preserve-3d;
+  perspective: 760px;
+  z-index: 2;
+}
+
+.ob-date-col + .ob-date-col {
+  border-left: 1px solid rgba(237, 229, 212, 0.045);
 }
 
 .ob-date-col::-webkit-scrollbar {
@@ -1731,14 +1851,20 @@ html, body {
 
 .ob-date-col-inner {
   display: block;
+  transform-style: preserve-3d;
 }
 
 .ob-date-spacer {
-  height: 90px;
+  height: 96px;
   pointer-events: none;
 }
 
 .ob-date-item {
+  --wheel-offset: 0;
+  --wheel-opacity: 1;
+  --wheel-scale: 1;
+  --wheel-blur: 0px;
+  position: relative;
   height: 40px;
   display: flex;
   align-items: center;
@@ -1751,12 +1877,33 @@ html, body {
   -webkit-user-select: none;
   white-space: nowrap;
   scroll-snap-align: center;
-  transition: color 0.2s ease, font-size 0.2s ease;
+  backface-visibility: hidden;
+  transform-origin: center center -118px;
+  transform:
+    rotateX(calc(var(--wheel-offset) * -18deg))
+    translateZ(8px)
+    scale(var(--wheel-scale));
+  opacity: var(--wheel-opacity);
+  filter: blur(var(--wheel-blur));
+  will-change: transform, opacity, filter;
+  transition: color 0.18s ease, font-size 0.18s ease, letter-spacing 0.18s ease;
 }
 
 .ob-date-item.selected {
   font-size: 20px;
   color: var(--vellum);
+  letter-spacing: 0.2px;
+  text-shadow:
+    0 0 16px rgba(237, 229, 212, 0.18),
+    0 1px 0 rgba(0, 0, 0, 0.22);
+}
+
+@supports (-webkit-touch-callout: none) {
+  .ob-date-item {
+    transform:
+      rotateX(calc(var(--wheel-offset) * -16deg))
+      scale(var(--wheel-scale));
+  }
 }
 
 /* Hijri reveal */
